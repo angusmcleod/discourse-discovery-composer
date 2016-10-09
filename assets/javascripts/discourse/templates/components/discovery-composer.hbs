@@ -1,0 +1,38 @@
+{{#if visible}}
+  <div class="composer-title">
+    <span>{{fa-icon topicIcon}}</span> {{i18n 'filters.new.title'}} {{i18n typeTitle}}
+  </div>
+  <a href class='close-composer' {{action "closeComposer" bubbles=false}} title={{i18n 'composer.toggler'}}>
+    {{i18n 'go_back'}} {{fa-icon 'angle-right'}}
+  </a>
+  {{text-field value=title
+               tabindex="2"
+               id="composer-title"
+               maxLength=siteSettings.max_topic_title_length
+               placeholderKey=titlePlaceholder
+               disabled=loading}}
+  {{popup-input-tip validation=validation}}
+  {{#if showRating}}
+    <div class='select-rating'>
+      {{select-rating rating=rating includeRaing=includeRating}}
+    </div>
+  {{/if}}
+  {{d-editor tabindex="4"
+             value=body
+             composer=this
+             placeholder='composer.reply_placeholder'
+             markdownOptions=markdownOptions
+             extraButtons="extraButtons"
+             showOptions="showOptions"
+             showUploadModal="showUploadModal"
+             togglePreview="togglePreview"
+             loading=loading}}
+  <button {{action "save"}} tabindex="5" class="btn btn-primary create {{if disableSubmit 'disabled'}}" title="{{i18n 'composer.title'}}">
+    {{fa-icon 'plus'}}{{i18n 'composer.create_topic'}}
+  </button>
+{{else}}
+  {{d-button action="switchType" actionParam="discussion" class='new-topic-btn new-discussion' label='topic.discussion.new' icon='comments-o'}}
+  {{d-button action="switchType" actionParam="question" class='new-topic-btn new-question' label='topic.question.new' icon='question-circle'}}
+  {{d-button action="switchType" actionParam="wiki" class='new-topic-btn new-wiki' label='topic.wiki.new' icon='file-text-o'}}
+  {{d-button action="switchType" actionParam="rating" class='new-topic-btn new-rating' label='topic.rating.new' icon='star'}}
+{{/if}}
