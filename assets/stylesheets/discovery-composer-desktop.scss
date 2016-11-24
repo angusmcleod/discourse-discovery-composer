@@ -57,18 +57,20 @@
   left: 5px;
 }
 
-.d-editor-button-bar {
-  position: absolute;
-  bottom: 3px;
-  left: 80px;
-  height: auto;
-}
-
-button.preview {
-  float: right;
-  background: $tertiary;
-  color: dark-light-choose(#fff, scale-color($primary, $lightness: 60%));
-  font-size: 1em;
+.discovery-composer {
+  .d-editor-button-bar {
+    position: absolute;
+    bottom: 3px;
+    left: 80px;
+    height: auto;
+    button.preview {
+      float: right;
+      background: $tertiary;
+      color: dark-light-choose(#fff, scale-color($primary, $lightness: 60%));
+      margin: 0;
+      font-size: 1em;
+    }
+  }
 }
 
 .discovery-composer.hide-preview {
