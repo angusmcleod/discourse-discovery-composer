@@ -3,6 +3,7 @@ import topicIconClass from '../lib/topic-icon';
 import { default as computed, on, observes } from 'ember-addons/ember-computed-decorators';
 import autosize from 'discourse/lib/autosize';
 import { throwAjaxError } from 'discourse/lib/ajax-error';
+import DiscourseURL from 'discourse/lib/url';
 import { ajax } from 'discourse/lib/ajax';
 
 const _create_serializer = {
