@@ -3,7 +3,7 @@
 # version: 0.1
 # authors: Angus McLeod
 
-register_asset 'stylesheets/discovery-composer-desktop.scss'
+register_asset 'stylesheets/discovery-composer.scss'
 
 after_initialize do
 
@@ -21,4 +21,8 @@ after_initialize do
       topic.save!
     end
   end
+
+  TopicList.preloaded_custom_fields << "topic_type" if TopicList.respond_to? :preloaded_custom_fields
+  add_to_serializer(:topic_list_item, :type) {object.custom_fields["topic_type"]}
+  add_to_serializer(:topic_view, :type) {object.topic.custom_fields["topic_type"]}
 end

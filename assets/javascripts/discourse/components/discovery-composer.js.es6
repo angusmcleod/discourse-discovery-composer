@@ -1,8 +1,8 @@
 import afterTransition from 'discourse/lib/after-transition';
-import topicIconClass from 'discourse/plugins/civil/lib/topic-icon';
+import topicIconClass from '../lib/topic-icon';
 import { default as computed, on, observes } from 'ember-addons/ember-computed-decorators';
 import autosize from 'discourse/lib/autosize';
-import { popupAjaxError } from 'discourse/lib/ajax-error';
+import { throwAjaxError } from 'discourse/lib/ajax-error';
 import { ajax } from 'discourse/lib/ajax';
 
 const _create_serializer = {
@@ -34,9 +34,6 @@ export default Ember.Component.extend({
       this.$('.d-editor-button-bar').appendTo(this.$('.d-editor-textarea-wrapper')[0]);
       $('#reply-title').focus();
     });
-    const appController = this.container.lookup('controller:application')
-    let category = appController.get('category') || '';
-    this.set('category', category)
   },
 
   @on('willDestroyElement')
@@ -97,10 +94,7 @@ export default Ember.Component.extend({
       if (category) category.incrementProperty('topic_count');
       Discourse.notifyPropertyChange('globalNotice');
       DiscourseURL.routeTo('/t/' + result.payload.topic_slug)
-    }).catch(function(error) {
-      console.log(error)
-      bootbox.alert(error)
-    });
+    }).catch(throwAjaxError());
   },
 
   serialize: function(serializer, dest) {
@@ -251,6 +245,19 @@ export default Ember.Component.extend({
   @computed('type')
   titlePlaceholder() {
     return 'topic.' + this.get('type') + '.title_placeholder'
+  },
+
+  @computed('type')
+  connectorText() {
+    const category = this.get('category');
+    let text = I18n.t('search.advanced.in_category.label').toLowerCase();
+    return category ? text.split(" ")[0] : ''
+  },
+
+  @computed()
+  createText() {
+    let text = I18n.t('composer.create_topic')
+    return text.split(" ")[0]
   },
 
   @computed('type')

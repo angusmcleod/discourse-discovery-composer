@@ -1,0 +1,21 @@
+en:
+  js:
+    topic:
+      create: "Create"
+      create_long: 'New post in'
+      discussion:
+        title: 'discussion'
+        new: 'Discuss'
+        title_placeholder: 'What is this discussion about?'
+      question:
+        title: 'question'
+        new: 'Ask'
+        title_placeholder: 'What is your question?'
+      wiki:
+        title: 'wiki'
+        new: 'Wiki'
+        title_placeholder: 'Title of your wiki.'
+      rating:
+        title: 'rating'
+        new: 'Rate'
+        title_placeholder: 'What are you rating?'
