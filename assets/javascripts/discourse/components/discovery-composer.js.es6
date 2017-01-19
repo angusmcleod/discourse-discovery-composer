@@ -126,6 +126,10 @@ export default Ember.Component.extend({
       this.save()
     },
     switchType(type) {
+      if (!this.get('currentUser')) {
+        const appRoute = this.container.lookup('route:application');
+        return appRoute.send('showLogin');
+      }
       this.setProperties({
         'type': type,
         'visible': true
