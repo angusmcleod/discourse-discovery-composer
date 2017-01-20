@@ -10,7 +10,7 @@ after_initialize do
   PostRevisor.track_topic_field(:wiki)
 
   DiscourseEvent.on(:post_created) do |post, opts, user|
-    if post.is_first_post?
+    if post.is_first_post? and opts[:tags]
       topic = Topic.find(post.topic_id)
       type = opts[:tags].first
       if type == 'wiki'
