@@ -85,6 +85,17 @@ export default Ember.Component.extend({
 
     const self = this;
     return createdPost.save().then(function(result) {
+
+      if (result.responseJson.action === "enqueued") {
+        self.clearCompose()
+        const appController = self.container.lookup('controller:application');
+        appController.send('postWasEnqueued', result.responseJson);
+        self.appEvents.trigger('post-stream:refresh');
+        return result;
+      }
+
+      this.appEvents.trigger('post-stream:refresh');
+
       user.set('topic_count', user.get('topic_count') + 1);
       if (type === 'rating') {
         self.saveRating(result.payload.id);
@@ -107,6 +118,15 @@ export default Ember.Component.extend({
       }
     });
     return dest;
+  },
+
+  clearCompose: function() {
+    this.setProperties({
+      title: '',
+      body: '',
+      type: '',
+      visible: false
+    })
   },
 
   saveRating: function(postId) {
