@@ -2,7 +2,7 @@ import afterTransition from 'discourse/lib/after-transition';
 import topicIconClass from '../lib/topic-icon';
 import { default as computed, on, observes } from 'ember-addons/ember-computed-decorators';
 import autosize from 'discourse/lib/autosize';
-import { throwAjaxError } from 'discourse/lib/ajax-error';
+import { popupAjaxError } from 'discourse/lib/ajax-error';
 import DiscourseURL from 'discourse/lib/url';
 import { ajax } from 'discourse/lib/ajax';
 
@@ -94,7 +94,7 @@ export default Ember.Component.extend({
         return result;
       }
 
-      this.appEvents.trigger('post-stream:refresh');
+      self.appEvents.trigger('post-stream:refresh');
 
       user.set('topic_count', user.get('topic_count') + 1);
       if (type === 'rating') {
@@ -106,7 +106,9 @@ export default Ember.Component.extend({
       if (category) category.incrementProperty('topic_count');
       Discourse.notifyPropertyChange('globalNotice');
       DiscourseURL.routeTo('/t/' + result.payload.topic_slug)
-    }).catch(throwAjaxError());
+    }).catch((error) => {
+      popupAjaxError(error);
+    });
   },
 
   serialize: function(serializer, dest) {
