@@ -7,7 +7,7 @@
     position: relative;
     overflow: hidden;
     &.open {
-      height: 115px;
+      height: 80px;
     }
     .contents {
       padding: 0;
@@ -34,7 +34,7 @@
     }
     &.edit-title .wmd-controls {
       padding-top: 5px;
-      top: 112px;
+      top: 77px;
     }
     .submit-panel {
       display: none;
@@ -56,11 +56,9 @@
     .cancel {
       display: none;
     }
-  }
-  .grippie {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
+    .grippie {
+      display: none;
+    }
   }
   .toggler {
     display: none;
