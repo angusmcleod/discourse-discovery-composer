@@ -44,13 +44,13 @@ export default {
       },
 
       resizeFull: function() {
-        if (this.$()) {
-          this.$().css('height', '400px')
-          let self = this
+        let self = this
+        Ember.run.scheduleOnce('afterRender', this, function() {
+          self.$().css('height', '400px')
           Ember.run.later((function() {
             self.$('.submit-panel').show()
           }), 300);
-        }
+        })
       },
 
       resizePartial: function() {
