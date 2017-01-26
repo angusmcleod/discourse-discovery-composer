@@ -19,8 +19,8 @@ export default {
       @on('didInsertElement')
       showHideComposeBody() {
         if (window.location.pathname.indexOf('/t/') === -1) {
-          this.setup()
-          this.contract()
+          this.setup();
+          this.resizePartial();
           $(document).on('click', Ember.run.bind(this, this.handleClick))
         }
       },
@@ -30,9 +30,9 @@ export default {
         let $target = $(event.target);
 
         if ($target.closest($element).length) {
-          this.expand();
+          this.resizeFull();
         } else {
-          this.contract();
+          this.resizePartial();
         }
       },
 
@@ -43,7 +43,7 @@ export default {
         }
       },
 
-      expand: function() {
+      resizeFull: function() {
         if (this.$()) {
           this.$().css('height', '400px')
           let self = this
@@ -53,11 +53,13 @@ export default {
         }
       },
 
-      contract: function() {
-        if (this.$()) {
-          this.$().css('height', '115px')
-          this.$('.submit-panel').hide()
-        }
+      resizePartial: function() {
+        let self = this
+        Ember.run.scheduleOnce('afterRender', this, function() {
+          let height = $('.composer-fields').height() + 7;
+          self.$().css('height', `${height}px`);
+          self.$('.submit-panel').hide();
+        })
       },
 
       @on('willDestroy')
