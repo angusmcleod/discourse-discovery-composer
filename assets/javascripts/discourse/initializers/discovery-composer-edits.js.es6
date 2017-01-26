@@ -44,6 +44,8 @@ export default {
       },
 
       resizeFull: function() {
+        if (!this.$()) { return }
+
         let self = this
         Ember.run.scheduleOnce('afterRender', this, function() {
           self.$().css('height', '400px')
@@ -54,6 +56,8 @@ export default {
       },
 
       resizePartial: function() {
+        if (!this.$()) { return }
+
         let self = this
         Ember.run.scheduleOnce('afterRender', this, function() {
           let height = $('.composer-fields').height() + 7;
