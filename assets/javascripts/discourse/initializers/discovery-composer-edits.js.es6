@@ -20,7 +20,6 @@ export default {
       showHideComposeBody() {
         if (window.location.pathname.indexOf('/t/') === -1) {
           this.setup();
-          this.resizePartial();
           $(document).on('click', Ember.run.bind(this, this.handleClick))
         }
       },
@@ -37,14 +36,22 @@ export default {
       },
 
       setup: function() {
-        if (this.$()) {
-          const fieldsHeight = this.$('.composer-fields').height();
-          this.$('.wmd-controls').css('top', `${fieldsHeight}px`)
-        }
+        this.resizePartial();
+        this.resizeControls();
+      },
+
+      resizePartial() {
+        let self = this;
+        Ember.run.scheduleOnce('afterRender', this, function() {
+          if (!self.$()) { return }
+          
+          self.$().css('height', '115px');
+          self.$('.submit-panel').hide();
+        })
       },
 
       resizeFull: function() {
-        let self = this
+        let self = this;
         Ember.run.scheduleOnce('afterRender', this, function() {
           if (!self.$()) { return }
 
@@ -55,14 +62,11 @@ export default {
         })
       },
 
-      resizePartial: function() {
-        let self = this
+      resizeControls() {
+        let self = this;
         Ember.run.scheduleOnce('afterRender', this, function() {
-          if (!self.$()) { return }
-
-          let height = $('.composer-fields').height() + 7;
-          self.$().css('height', `${height}px`);
-          self.$('.submit-panel').hide();
+          const fieldsHeight = self.$('.composer-fields').height();
+          self.$('.wmd-controls').css('top', `${fieldsHeight}px`)
         })
       },
 
