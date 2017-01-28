@@ -44,10 +44,10 @@ export default {
       },
 
       resizeFull: function() {
-        if (!this.$()) { return }
-
         let self = this
         Ember.run.scheduleOnce('afterRender', this, function() {
+          if (!self.$()) { return }
+
           self.$().css('height', '400px')
           Ember.run.later((function() {
             self.$('.submit-panel').show()
@@ -56,10 +56,10 @@ export default {
       },
 
       resizePartial: function() {
-        if (!this.$()) { return }
-
         let self = this
         Ember.run.scheduleOnce('afterRender', this, function() {
+          if (!self.$()) { return }
+
           let height = $('.composer-fields').height() + 7;
           self.$().css('height', `${height}px`);
           self.$('.submit-panel').hide();
@@ -127,19 +127,22 @@ export default {
           this._super();
           if (this.currentUser && (this.get('firstRenderDiscovery') || this.get('transitionToDiscovery'))) {
             this.openComposer(this.controllerFor("discovery/topics"));
-            this.set('firstRenderDiscovery', false)
+            this.setProperties({
+              'firstRenderDiscovery': false,
+              'transitionToDiscovery': false
+            })
           }
           return true; // Bubble the didTransition event
         },
 
         willTransition: function(transition) {
           if (this.currentUser) {
-            if (transition.targetName.indexOf('topic') > -1) {
-              this.controllerFor('composer').shrink();
-              this.set('transitionToDiscovery', false)
-            } else {
+            if (transition.targetName.indexOf('discovery') > -1) {
               this.disconnectComposer();
               this.set('transitionToDiscovery', true)
+            } else {
+              this.controllerFor('composer').shrink();
+              this.set('transitionToDiscovery', false)
             }
           }
         }
