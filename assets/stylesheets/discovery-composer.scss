@@ -13,6 +13,13 @@
       padding: 0;
       height: 100%;
       min-width: initial;
+      .form-element, .title-input {
+        width: 100%;
+        display: block;
+      }
+      input#reply-title {
+        margin: 7px 0;
+      }
     }
     .control {
       height: 100%;
@@ -20,20 +27,20 @@
     .reply-area {
       height: 100%;
       max-width: 100%;
-      padding: 0 10px;
+      padding: 0 7px;
       .reply-to {
         margin: 0;
         padding-top: 10px;
       }
     }
     .wmd-controls {
-      left: 10px;
-      right: 10px;
+      left: 7px;
+      right: 7px;
       bottom: 50px !important;
       width: auto;
     }
     &.edit-title .wmd-controls {
-      padding-top: 5px;
+      padding-top: 2px;
       top: 77px;
     }
     .submit-panel {
@@ -46,7 +53,7 @@
       left: 140px;
       margin: 0;
       border: none;
-      width: 250px !important;
+      width: 200px !important;
       .select2-choices {
         margin: 0;
         border: 0;

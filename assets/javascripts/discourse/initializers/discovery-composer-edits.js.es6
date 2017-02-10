@@ -20,7 +20,8 @@ export default {
       showHideComposeBody() {
         if (window.location.pathname.indexOf('/t/') === -1) {
           this.setup();
-          $(document).on('click', Ember.run.bind(this, this.handleClick))
+          $(document).on('click', Ember.run.bind(this, this.handleClick));
+          $(document).on('resize', Ember.run.bind(this, this.handleResize));
         }
       },
 
@@ -35,31 +36,14 @@ export default {
         }
       },
 
+      handleResize: function(event) {
+        let titleWidth = $('.title-input').width() - 21;
+        $('#reply-title').css('width', `${titleWidth}px`)
+      },
+
       setup: function() {
         this.resizePartial();
         this.resizeControls();
-      },
-
-      resizePartial() {
-        let self = this;
-        Ember.run.scheduleOnce('afterRender', this, function() {
-          if (!self.$()) { return }
-          
-          self.$().css('height', '115px');
-          self.$('.submit-panel').hide();
-        })
-      },
-
-      resizeFull: function() {
-        let self = this;
-        Ember.run.scheduleOnce('afterRender', this, function() {
-          if (!self.$()) { return }
-
-          self.$().css('height', '400px')
-          Ember.run.later((function() {
-            self.$('.submit-panel').show()
-          }), 300);
-        })
       },
 
       resizeControls() {
@@ -70,9 +54,33 @@ export default {
         })
       },
 
+      resizePartial() {
+        let self = this;
+        Ember.run.scheduleOnce('afterRender', this, function() {
+          if (!self.$()) { return }
+
+          self.$('.submit-panel, .reply-to, .topic-type-choice').hide();
+          self.$().css('height', '48px');
+        })
+      },
+
+      resizeFull: function() {
+        let self = this;
+        Ember.run.scheduleOnce('afterRender', this, function() {
+          if (!self.$()) { return }
+
+          self.$().css('height', '400px');
+          self.$('.topic-type-choice').show();
+          Ember.run.later((function() {
+            self.$('.submit-panel').show();
+          }), 300);
+        })
+      },
+
       @on('willDestroy')
       destroyExpandEvent() {
-        $(document).off('click', Ember.run.bind(this, this.handleClick))
+        $(document).off('click', Ember.run.bind(this, this.handleClick));
+        $(document).off('resize', Ember.run.bind(this, this.handleResize));
       }
     })
 
