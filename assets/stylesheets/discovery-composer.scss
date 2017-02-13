@@ -6,6 +6,7 @@
     bottom: initial;
     position: relative;
     overflow: hidden;
+    background-color: initial;
     &.open {
       height: 80px;
     }
@@ -13,12 +14,38 @@
       padding: 0;
       height: 100%;
       min-width: initial;
-      .form-element, .title-input {
+      .composer-fields > span:first-of-type {
+        float: left;
+        margin: 11px 6px 11px 3px;
+      }
+      .form-element {
+        overflow: hidden;
+        display: block;
+      }
+      .title-input {
         width: 100%;
         display: block;
       }
       input#reply-title {
         margin: 7px 0;
+        padding-right: 8px;
+      }
+      .title-tip {
+        position: absolute;
+        right: 12px;
+        top: 48px;
+        color: #ccc;
+        &.active {
+          color: #7b7b7b;
+        }
+      }
+      .similar-title-topics {
+        margin: 0;
+        padding: 0 10px;
+        list-style: none;
+        li {
+          margin: 10px 0;
+        }
       }
     }
     .control {
@@ -38,6 +65,7 @@
       right: 7px;
       bottom: 50px !important;
       width: auto;
+      display: none;
     }
     &.edit-title .wmd-controls {
       padding-top: 2px;
