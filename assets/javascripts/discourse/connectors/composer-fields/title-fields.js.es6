@@ -18,7 +18,9 @@ export default {
         // necessary placeholder
       },
       didChange: function(topics, offset, removeCount, addCount) {
-        component.set('topics', topics);
+        if (component) {
+          component.set('topics', topics);
+        }
       }
     })
   }

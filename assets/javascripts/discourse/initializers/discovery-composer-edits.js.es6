@@ -10,6 +10,7 @@ import TopicRoute from 'discourse/routes/topic';
 import TopicAdapter from 'discourse/adapters/topic';
 import { ajax } from 'discourse/lib/ajax';
 import { default as computed, on, observes } from 'ember-addons/ember-computed-decorators';
+import { getOwner } from 'discourse-common/lib/get-owner';
 
 const styleStates = {
   initial: () => {
@@ -37,13 +38,22 @@ const styleStates = {
 }
 
 export default {
-  name: 'discovery-compose',
+  name: 'discovery-composer',
   initialize(){
 
     Composer.reopen({
       showCategoryChooser: false,
       bodyState: 'initial',
-      similarTitleTopics: Ember.A()
+      similarTitleTopics: Ember.A(),
+      isDiscovery: false
+    })
+
+    ComposerController.reopen({
+      toggleIsDiscovery: function() {
+        if (!this.get('model')) {return};
+        let isDiscovery = this.get('application.currentPath').indexOf('discovery') > -1;
+        this.set('model.isDiscovery', isDiscovery);
+      }.observes('application.currentPath').on('init')
     })
 
     ComposerTitle.reopen({
@@ -126,14 +136,20 @@ export default {
         }
       },
 
-      @on('didInsertElement')
+      @observes('composer.isDiscovery')
       showHideComposeBody() {
-        if (window.location.pathname.indexOf('/t/') === -1) {
+        if (this.get('composer.isDiscovery')) {
           this.setup();
           $(document).on('click', Ember.run.bind(this, this.handleClick));
           $(document).on('resize', Ember.run.bind(this, this.handleWindowResize));
           this.appEvents.on('composer:accept-title', this, this.handleAcceptTitle);
         }
+      },
+
+      @observes('composer.isDiscovery')
+      destroyExpandEvent() {
+        $(document).off('click', Ember.run.bind(this, this.handleClick));
+        $(document).off('resize', Ember.run.bind(this, this.handleResize));
       },
 
       handleClick(event) {
@@ -165,12 +181,6 @@ export default {
           const fieldsHeight = self.$('.composer-fields').height();
           self.$('.wmd-controls').css('top', `${fieldsHeight}px`)
         })
-      },
-
-      @on('willDestroy')
-      destroyExpandEvent() {
-        $(document).off('click', Ember.run.bind(this, this.handleClick));
-        $(document).off('resize', Ember.run.bind(this, this.handleResize));
       }
     })
 
