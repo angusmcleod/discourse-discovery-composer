@@ -12,26 +12,26 @@ import { ajax } from 'discourse/lib/ajax';
 import { default as computed, on, observes } from 'ember-addons/ember-computed-decorators';
 import { getOwner } from 'discourse-common/lib/get-owner';
 
-const styleStates = {
-  initial: () => {
+const discoveryComposeStates = {
+  discoveryInitial: () => {
     $('#reply-control').find('.reply-to, .topic-type-choice, .wmd-controls, .submit-panel').hide();
     $('#reply-control').css('height', '48px');
   },
-  input: () => {
+  discoveryInput: () => {
     $('#reply-control').find('.input-tip').show();
     $('#reply-control').css('height', '75px');
   },
-  similar: () => {
+  discoverySimilar: () => {
     $('#reply-control').css('height', $('.similar-title-topics').height() + 70);
   },
-  full: () => {
+  discoveryFull: () => {
     $('#reply-control').css('height', '400px');
     $('#reply-control').find('.wmd-controls').show();
     Ember.run.later((function() {
       $('#reply-control').find('.submit-panel').show();
     }), 300);
   },
-  types: () => {
+  discoveryTypes: () => {
     $('#reply-control').find('.topic-type-choice').show();
     $('#reply-control').css('height', '90px');
   }
@@ -43,17 +43,70 @@ export default {
 
     Composer.reopen({
       showCategoryChooser: false,
-      bodyState: 'initial',
       similarTitleTopics: Ember.A(),
-      isDiscovery: false
+
+      @computed('composeState')
+      isDiscovery: function() {
+        return this.get('composeState').indexOf('discovery') > -1;
+      },
+
+      @computed('composeState')
+      viewOpen: function() {
+        return this.get('composeState') === 'open' ||
+               this.get('isDiscovery')
+      }
     })
 
     ComposerController.reopen({
-      toggleIsDiscovery: function() {
-        if (!this.get('model')) {return};
-        let isDiscovery = this.get('application.currentPath').indexOf('discovery') > -1;
-        this.set('model.isDiscovery', isDiscovery);
-      }.observes('application.currentPath').on('init')
+      _setModel(composerModel, opts) {
+        this.set('linkLookup', null);
+
+        if (opts.draft) {
+          composerModel = loadDraft(this.store, opts);
+          if (composerModel) {
+            composerModel.set('topic', opts.topic);
+          }
+        } else {
+          composerModel = composerModel || this.store.createRecord('composer');
+          composerModel.open(opts);
+        }
+
+        this.set('model', composerModel);
+        composerModel.set('isWarning', false);
+
+        if (opts.topicTitle && opts.topicTitle.length <= this.siteSettings.max_topic_title_length) {
+          this.set('model.title', opts.topicTitle);
+        }
+
+        if (opts.topicCategoryId) {
+          this.set('model.categoryId', opts.topicCategoryId);
+        } else if (opts.topicCategory) {
+          const splitCategory = opts.topicCategory.split("/");
+          let category;
+
+          if (!splitCategory[1]) {
+            category = this.site.get('categories').findBy('nameLower', splitCategory[0].toLowerCase());
+          } else {
+            const categories = Discourse.Category.list();
+            const mainCategory = categories.findBy('nameLower', splitCategory[0].toLowerCase());
+            category = categories.find(function(item) {
+              return item && item.get('nameLower') === splitCategory[1].toLowerCase() && item.get('parent_category_id') === mainCategory.id;
+            });
+          }
+
+          if (category) {
+            this.set('model.categoryId', category.get('id'));
+          }
+        }
+
+        if (opts.topicTags && !this.site.mobileView && this.site.get('can_tag_topics')) {
+          this.set('model.tags', opts.topicTags.split(","));
+        }
+
+        if (opts.topicBody) {
+          this.set('model.reply', opts.topicBody);
+        }
+      }
     })
 
     ComposerTitle.reopen({
@@ -114,7 +167,7 @@ export default {
           similarTitleTopics.pushObjects(newTopics.get('content'));
 
           if (similarTitleTopics.get('length') > 0) {
-            composer.set('bodyState', 'similar');
+            composer.set('composeState', 'discoverySimilar');
           } else {
             this.appEvents.trigger('composer:accept-title');
           }
@@ -126,26 +179,26 @@ export default {
       titleValid: false,
 
       @on('init')
-      @observes('composer.bodyState,composer.similarTitleTopics.[]')
-      handleBodyState() {
-        const state = this.get('composer.bodyState')
-        if (state) {
+      @observes('composer.isDiscovery,composer.similarTitleTopics.[]')
+      handleComposeState() {
+        if (this.get('composer.isDiscovery')) {
           Ember.run.scheduleOnce('afterRender', this, function() {
-            styleStates[state]()
+            discoveryComposeStates[this.get('composer.composeState')]()
           })
         }
       },
 
+      @on('didInsertElement')
       @observes('composer.isDiscovery')
       showHideComposeBody() {
         if (this.get('composer.isDiscovery')) {
-          this.setup();
           $(document).on('click', Ember.run.bind(this, this.handleClick));
           $(document).on('resize', Ember.run.bind(this, this.handleWindowResize));
           this.appEvents.on('composer:accept-title', this, this.handleAcceptTitle);
         }
       },
 
+      @on('didInsertElement')
       @observes('composer.isDiscovery')
       destroyExpandEvent() {
         $(document).off('click', Ember.run.bind(this, this.handleClick));
@@ -153,11 +206,11 @@ export default {
       },
 
       handleClick(event) {
-        if (event.target.id === 'reply-title' && this.get('composer.bodyState') === 'initial') {
-          this.set('composer.bodyState', 'input');
+        if (event.target.id === 'reply-title' && this.get('composer.composeState') === 'discoveryInitial') {
+          this.set('composer.composeState', 'discoveryInput');
         }
         if (!$(event.target).closest(this.$()).length) {
-          this.set('composer.bodyState', 'initial');
+          this.set('composer.composeState', 'discoveryInitial');
         }
       },
 
@@ -167,20 +220,7 @@ export default {
       },
 
       handleAcceptTitle(event) {
-        this.set('composer.bodyState', 'full');;
-      },
-
-      setup() {
-        this.resizeControls();
-        this.set('composer.bodyState', 'initial')
-      },
-
-      resizeControls() {
-        let self = this;
-        Ember.run.scheduleOnce('afterRender', this, function() {
-          const fieldsHeight = self.$('.composer-fields').height();
-          self.$('.wmd-controls').css('top', `${fieldsHeight}px`)
-        })
+        this.set('composer.composeState', 'discoveryFull');;
       }
     })
 
@@ -238,7 +278,14 @@ export default {
         didTransition: function() {
           this._super();
           if (this.currentUser && (this.get('firstRenderDiscovery') || this.get('transitionToDiscovery'))) {
-            this.openComposer(this.controllerFor("discovery/topics"));
+            const controller = this.controllerFor("discovery/topics")
+            this.controllerFor('composer').open({
+              categoryId: controller.get('category.id'),
+              action: Composer.CREATE_TOPIC,
+              draftKey: controller.get('model.draft_key'),
+              draftSequence: controller.get('model.draft_sequence'),
+              composerState: 'discoveryInitial'
+            });
             this.setProperties({
               'firstRenderDiscovery': false,
               'transitionToDiscovery': false
@@ -253,6 +300,8 @@ export default {
               this.disconnectComposer();
               this.set('transitionToDiscovery', true)
             } else {
+              const composer = getOwner(this).lookup('model:composer');
+              composer.set('isDiscovery', false);
               this.controllerFor('composer').shrink();
               this.set('transitionToDiscovery', false)
             }
