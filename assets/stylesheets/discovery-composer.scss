@@ -10,6 +10,7 @@
     &.discoveryInitial {
       height: 80px;
     }
+
     .contents {
       padding: 0;
       height: 100%;
@@ -18,9 +19,15 @@
         float: left;
         margin: 11px 6px 11px 3px;
       }
+      .reply-to {
+        display: none;
+      }
       .form-element {
         overflow: hidden;
         display: block;
+      }
+      .title-fields {
+        padding: 5px;
       }
       .title-input {
         width: 100%;
@@ -41,8 +48,9 @@
       }
       .similar-title-topics {
         margin: 0;
-        padding: 0 10px;
         list-style: none;
+        display: inline-block;
+        width: 100%;
         li {
           margin: 10px 0;
         }
@@ -97,5 +105,56 @@
   }
   .toggler {
     display: none;
+  }
+}
+
+.discovery-actions {
+  height: 30px;
+  .next {
+    float: right;
+  }
+}
+
+.topic-type-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  &.types {
+    display: block;
+    .topic-type-btn {
+      display: inline-block;
+      width: 20%;
+      margin-top: 10px;
+    }
+  }
+  .topic-type-btn {
+    flex: 0 1 auto;
+    width: 20%;
+    .fa {
+      margin-right: 3px;
+    }
+    button {
+      width: 100%;
+      color: #333;
+      color: $tertiary;
+    }
+    .active {
+      color: dark-light-choose(#fff, scale-color($primary, $lightness: 60%));
+      background: $tertiary;
+    }
+  }
+  .topic-type-text {
+    &.body {
+      display: inline-block;
+    }
+    &.description {
+      display: inline-block;
+      vertical-align: middle;
+      width: 70%;
+      margin-left: 5px;
+      div {
+        width: 100%;
+      }
+    }
   }
 }

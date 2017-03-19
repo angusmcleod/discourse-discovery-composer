@@ -14,15 +14,19 @@ import { getOwner } from 'discourse-common/lib/get-owner';
 
 const discoveryComposeStates = {
   discoveryInitial: () => {
-    $('#reply-control').find('.reply-to, .topic-type-choice, .wmd-controls, .submit-panel').hide();
+    $('#reply-control').find('.topic-type-choice, .wmd-controls, .submit-panel').hide();
     $('#reply-control').css('height', '48px');
   },
   discoveryInput: () => {
     $('#reply-control').find('.input-tip').show();
     $('#reply-control').css('height', '75px');
   },
+  discoveryTypes: () => {
+    $('#reply-control').find('.topic-type-choice').show();
+    $('#reply-control').css('height', '290px');
+  },
   discoverySimilar: () => {
-    $('#reply-control').css('height', $('.similar-title-topics').height() + 70);
+    $('#reply-control').css('height', $('.similar-title-topics').height() + 110);
   },
   discoveryFull: () => {
     $('#reply-control').css('height', '400px');
@@ -30,10 +34,6 @@ const discoveryComposeStates = {
     Ember.run.later((function() {
       $('#reply-control').find('.submit-panel').show();
     }), 300);
-  },
-  discoveryTypes: () => {
-    $('#reply-control').find('.topic-type-choice').show();
-    $('#reply-control').css('height', '90px');
   }
 }
 
@@ -41,9 +41,15 @@ export default {
   name: 'discovery-composer',
   initialize(){
 
+    Composer.serializeOnCreate('topic_type', 'topicType')
+    Composer.serializeOnCreate('wiki')
+
     Composer.reopen({
       showCategoryChooser: false,
       similarTitleTopics: Ember.A(),
+      hideRating: true,
+      currentType: 'question',
+      wiki: Ember.computed.bool('topicType', 'wiki'),
 
       @computed('composeState')
       isDiscovery: function() {
@@ -54,57 +60,26 @@ export default {
       viewOpen: function() {
         return this.get('composeState') === 'open' ||
                this.get('isDiscovery')
+      },
+
+      @computed('hideRating')
+      topicTypes: function() {
+        const types = Discourse.SiteSettings.topic_types.split('|');
+
+        if (this.get('hideRating')) {
+          types.splice(types.indexOf('rating'), 1)
+        }
+
+        types.push('default');
+
+        return types;
       }
     })
 
     ComposerController.reopen({
-      _setModel(composerModel, opts) {
-        this.set('linkLookup', null);
-
-        if (opts.draft) {
-          composerModel = loadDraft(this.store, opts);
-          if (composerModel) {
-            composerModel.set('topic', opts.topic);
-          }
-        } else {
-          composerModel = composerModel || this.store.createRecord('composer');
-          composerModel.open(opts);
-        }
-
-        this.set('model', composerModel);
-        composerModel.set('isWarning', false);
-
-        if (opts.topicTitle && opts.topicTitle.length <= this.siteSettings.max_topic_title_length) {
-          this.set('model.title', opts.topicTitle);
-        }
-
-        if (opts.topicCategoryId) {
-          this.set('model.categoryId', opts.topicCategoryId);
-        } else if (opts.topicCategory) {
-          const splitCategory = opts.topicCategory.split("/");
-          let category;
-
-          if (!splitCategory[1]) {
-            category = this.site.get('categories').findBy('nameLower', splitCategory[0].toLowerCase());
-          } else {
-            const categories = Discourse.Category.list();
-            const mainCategory = categories.findBy('nameLower', splitCategory[0].toLowerCase());
-            category = categories.find(function(item) {
-              return item && item.get('nameLower') === splitCategory[1].toLowerCase() && item.get('parent_category_id') === mainCategory.id;
-            });
-          }
-
-          if (category) {
-            this.set('model.categoryId', category.get('id'));
-          }
-        }
-
-        if (opts.topicTags && !this.site.mobileView && this.site.get('can_tag_topics')) {
-          this.set('model.tags', opts.topicTags.split(","));
-        }
-
-        if (opts.topicBody) {
-          this.set('model.reply', opts.topicBody);
+      actions: {
+        switchTopicType(topicType) {
+          this.set('model.topicType', topicType );
         }
       }
     })
@@ -118,9 +93,9 @@ export default {
       processTitle(event) {
         if (event.keyCode === 13) {
           if (this.get('validation')) {
-            this.set('validation.lastShownAt', true)
+            this.set('validation.lastShownAt', true);
           } else {
-            this.appEvents.trigger("composer:valid-title");
+            this.appEvents.trigger('composer:find-similar-title');
           }
         }
       },
@@ -136,15 +111,19 @@ export default {
 
       @on('didInsertElement')
       watchValidTitle() {
-        this.appEvents.on('composer:valid-title', this, this._handleValidTitle);
+        this.appEvents.on('composer:find-similar-title', this, this._findSimilarTitleTopics);
       },
 
       @on('willDestroyElement')
       destroyValidTitle() {
-        this.appEvents.off('composer:valid-title', this, this._handleValidTitle);
+        this.appEvents.off('composer:find-similar-title', this, this._findSimilarTitleTopics);
       },
 
-      _handleValidTitle() {
+      _findSimilar() {
+        return;
+      },
+
+      _findSimilarTitleTopics() {
         const composer = this.get('composer');
 
         // We don't care about similar topics unless creating a topic
@@ -169,14 +148,22 @@ export default {
           if (similarTitleTopics.get('length') > 0) {
             composer.set('composeState', 'discoverySimilar');
           } else {
-            this.appEvents.trigger('composer:accept-title');
+            composer.set('composeState', 'discoveryTypes');
           }
+          console.log(composer.get('composeState'))
         });
       }
     })
 
     ComposerBody.reopen({
       titleValid: false,
+
+      @on('init')
+      setupBoundMethods() {
+        this._super();
+        this._handleClick = Ember.run.bind(this, this.handleClick);
+        this._handleWindowResize = Ember.run.bind(this, this.handleWindowResize);
+      },
 
       @on('init')
       @observes('composer.isDiscovery,composer.similarTitleTopics.[]')
@@ -192,17 +179,16 @@ export default {
       @observes('composer.isDiscovery')
       showHideComposeBody() {
         if (this.get('composer.isDiscovery')) {
-          $(document).on('click', Ember.run.bind(this, this.handleClick));
-          $(document).on('resize', Ember.run.bind(this, this.handleWindowResize));
+          $(document).on('click', this._handleClick);
+          $(document).on('resize', this._handleWindowResize);
           this.appEvents.on('composer:accept-title', this, this.handleAcceptTitle);
         }
       },
 
-      @on('didInsertElement')
-      @observes('composer.isDiscovery')
+      @on('willDestroyElement')
       destroyExpandEvent() {
-        $(document).off('click', Ember.run.bind(this, this.handleClick));
-        $(document).off('resize', Ember.run.bind(this, this.handleResize));
+        $(document).off('click', this._handleClick);
+        $(document).off('resize', this._handleWindowResize);
       },
 
       handleClick(event) {

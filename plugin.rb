@@ -6,6 +6,62 @@
 register_asset 'stylesheets/discovery-composer.scss'
 
 after_initialize do
+  require 'docker'
+  TYPE_MODEL = "tf-cnn-text"
+
+  module ::DiscoveryComposer
+    class Engine < ::Rails::Engine
+      engine_name "discovery_composer"
+      isolate_namespace DiscoveryComposer
+    end
+  end
+
+  require_dependency "application_controller"
+  class DiscoveryComposer::TypeController < ::ApplicationController
+    def determine
+      title = params[:title]
+      model = DiscourseMachineLearning::Model.new(TYPE_MODEL)
+      type = model.eval(title)
+      render json: success_json.merge(type: type)
+    end
+  end
+
+  DiscoveryComposer::Engine.routes.draw do
+    post "determine" => "type#determine"
+  end
+
+  Discourse::Application.routes.append do
+    mount ::DiscoveryComposer::Engine, at: "discovery"
+  end
+
+  require 'topic_subtype'
+  class ::TopicSubtype
+    def initialize(id, options)
+      super
+      SiteSetting.topic_types.each do |type|
+        define_method "self.#{type}" do
+          type
+        end
+        register type
+      end
+    end
+  end
+
+  PostRevisor.track_topic_field(:wiki)
+  PostRevisor.track_topic_field(:topic_type)
+
+  DiscourseEvent.on(:post_created) do |post, opts, user|
+    if post.is_first_post? and opts[:topic_type]
+      topic = Topic.find(post.topic_id)
+      topic_type = opts[:topic_type] & SiteSetting.topic_types.split('|')
+      if topic_type == 'wiki'
+        post.wiki = true
+        post.save!
+      end
+      topic.subtype = topic_type
+      topic.save!
+    end
+  end
 
   require 'similar_topics_controller'
   class ::SimilarTopicsController

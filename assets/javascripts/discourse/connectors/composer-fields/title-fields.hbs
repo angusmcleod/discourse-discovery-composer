@@ -1,5 +1,33 @@
-{{#if topics}}
-  {{similar-title-topics topics=topics}}
-{{else}}
+{{#if showTip}}
   <span class='title-tip {{tipClass}}'>{{i18n 'composer.input_tip'}}</span>
+{{/if}}
+
+{{#if showTypes}}
+  {{#if typesState}}
+    <div class="discovery-title">{{i18n 'composer.type_choice'}}</div>
+  {{/if}}
+  <div class="topic-type-container {{containerClass}}">
+    {{#each topicTypes as |type|}}
+      {{topic-type-btn topicType=type switchTopicType="switchTopicType" currentType=currentType}}
+      {{#if typesState}}
+        {{topic-type-text type=type ext="description"}}
+      {{/if}}
+    {{/each}}
+  </div>
+  {{#if typesState}}
+    <div class="discovery-actions">
+      {{d-button class="btn-primary next" label="composer.next" action="goTo" actionParam="Full"}}
+    </div>
+  {{/if}}
+  {{#unless typesState}}
+    {{topic-type-text type=currentType ext="body"}}
+  {{/unless}}
+{{/if}}
+
+{{#if showSimilarTitleTopics}}
+  <div class="discovery-title">{{i18n 'composer.similar'}}</div>
+  {{similar-title-topics topics=topics}}
+  <div class="discovery-actions">
+    {{d-button class="btn-primary next" label="composer.similar_create" action="goTo" actionParam="Types"}}
+  </div>
 {{/if}}

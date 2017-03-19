@@ -1,0 +1,9 @@
+plugins:
+  topic_types:
+    client: true
+    type: list
+    choices:
+     - question
+     - discussion
+     - rating
+     - wiki

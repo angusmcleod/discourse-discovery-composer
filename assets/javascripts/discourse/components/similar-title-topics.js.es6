@@ -4,7 +4,7 @@ import { observes, on } from 'ember-addons/ember-computed-decorators';
 export default MountWidget.extend({
   tagName: 'ul',
   classNames: ["similar-title-topics"],
-  widget: 'search-result-topic',
+  widget: 'similar-topics',
   topics: [],
 
   @observes('topics.[]')

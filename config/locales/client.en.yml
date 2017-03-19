@@ -1,0 +1,38 @@
+en:
+  js:
+    composer:
+      title_or_link_placeholder: 'Ask a question, start a discussion, post a document or rate a service'
+      input_tip: "type a title, then hit enter to continue"
+      next: "Next"
+      similar: "Consider posting in these similar topics first. Links open in a new tab."
+      similar_create: "Post your own"
+      type_choice: "What kind of post is this?"
+    tagging:
+      choose_for_topic: "Add tags"
+    topic:
+      type:
+        discussion:
+          title: 'discussion'
+          label: 'Discussion'
+          description: 'Start a discussion about legal, government or civic issues.'
+          body: "Describe what's on your mind as clearly as possible."
+        question:
+          title: 'question'
+          label: 'Question'
+          description: 'Ask a legal, government or civic question.'
+          body: 'Give as much context and background as you can.'
+        wiki:
+          title: 'document'
+          label: 'Document'
+          description: 'Share legal, government or civic documents.'
+          body: 'Add the document you want to share below.'
+        review:
+          title: 'review'
+          label: 'Review'
+          description: "Review a legal, government or civic service."
+          body: "Describe your experience with the service."
+        default:
+          title: 'default'
+          label: 'Other'
+          description: 'Post anything related to civic life in your area.'
+          body: 'Add the body of your post below.'
