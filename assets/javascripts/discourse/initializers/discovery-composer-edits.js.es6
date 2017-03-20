@@ -31,8 +31,8 @@ const discoveryComposeStates = {
   discoveryTypes: () => {
     $('#reply-control').find('.topic-type-choice').show();
     $('#reply-control').css({
-      'min-height': '280px',
-      'height': '280px'
+      'min-height': '325px',
+      'height': '325px'
     });
   },
   discoverySimilar: () => {
@@ -60,7 +60,6 @@ export default {
     Composer.reopen({
       showCategoryChooser: false,
       similarTitleTopics: Ember.A(),
-      hideRating: true,
       currentType: 'question',
       wiki: Ember.computed.bool('topicType', 'wiki'),
 
@@ -79,14 +78,18 @@ export default {
       @computed('hideRating')
       topicTypes: function() {
         const types = Discourse.SiteSettings.topic_types.split('|');
-
-        if (this.get('hideRating')) {
-          types.splice(types.indexOf('rating'), 1)
-        }
-
         types.push('default');
-
         return types;
+      },
+
+      @computed('composeState')
+      hideRating() {
+        return this.get('isDiscovery') && this.get('composeState') !== 'discoveryFull';
+      },
+
+      @observes('currentType')
+      test() {
+        console.log(this.get('currentType'))
       }
     })
 

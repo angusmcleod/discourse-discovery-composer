@@ -26,8 +26,8 @@ en:
           label: 'Document'
           description: 'Share a legal, government or civic document.'
           body: 'Add the document you want to share.'
-        review:
-          title: 'review'
+        rating:
+          title: 'rating'
           label: 'Review'
           description: "Review a legal, government or civic service."
           body: "Describe your experience with the service."

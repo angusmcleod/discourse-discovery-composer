@@ -6,7 +6,6 @@
 register_asset 'stylesheets/discovery-composer.scss'
 
 after_initialize do
-  require 'docker'
   TYPE_MODEL = "tf-cnn-text"
 
   module ::DiscoveryComposer
