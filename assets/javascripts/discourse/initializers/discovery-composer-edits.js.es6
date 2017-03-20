@@ -1,6 +1,7 @@
 import Composer from 'discourse/models/composer';
 import ComposerController from 'discourse/controllers/composer';
 import ComposerBody from 'discourse/components/composer-body';
+import ComposerEditor from 'discourse/components/composer-editor';
 import ComposerTitle from 'discourse/components/composer-title';
 import ComposerMessages from 'discourse/components/composer-messages';
 import TopicStatusView from 'discourse/raw-views/topic-status';
@@ -15,21 +16,34 @@ import { getOwner } from 'discourse-common/lib/get-owner';
 const discoveryComposeStates = {
   discoveryInitial: () => {
     $('#reply-control').find('.reply-to, .topic-type-choice, .wmd-controls, .submit-panel').hide();
-    $('#reply-control').css('height', '48px');
+    $('#reply-control').css({
+      'min-height': '48px',
+      'height': '48px'
+    });
   },
   discoveryInput: () => {
     $('#reply-control').find('.input-tip').show();
-    $('#reply-control').css('height', '75px');
+    $('#reply-control').css({
+      'min-height': '75px',
+      'height': '75px'
+    });
   },
   discoveryTypes: () => {
     $('#reply-control').find('.topic-type-choice').show();
-    $('#reply-control').css('height', '280px');
+    $('#reply-control').css({
+      'min-height': '280px',
+      'height': '280px'
+    });
   },
   discoverySimilar: () => {
-    $('#reply-control').css('height', $('.similar-titles').height() + 110);
+    let height = $('.similar-titles').height() + 110;
+    $('#reply-control').css({
+      'min-height': height,
+      'height': height
+    });
   },
   discoveryFull: () => {
-    $('#reply-control').css('height', '400px');
+    $('#reply-control').css('min-height', '400px');
     $('#reply-control').find('.wmd-controls').show();
     Ember.run.later((function() {
       $('#reply-control').find('.submit-panel').show();
@@ -52,7 +66,8 @@ export default {
 
       @computed('composeState')
       isDiscovery: function() {
-        return this.get('composeState').indexOf('discovery') > -1;
+        const state = this.get('composeState');
+        return state && state.indexOf('discovery') > -1;
       },
 
       @computed('composeState')
@@ -176,6 +191,7 @@ export default {
         this._super();
         this._handleClick = Ember.run.bind(this, this.handleClick);
         this._handleWindowResize = Ember.run.bind(this, this.handleWindowResize);
+        this._resizeComposer = Ember.run.bind(this, this.handleComposerResize);
       },
 
       @on('init')
@@ -220,6 +236,37 @@ export default {
 
       handleAcceptTitle(event) {
         this.set('composer.composeState', 'discoveryFull');;
+      },
+
+      @observes('composer.composeState')
+      setupHandleComposerResize() {
+        if (this.get('composer.composeState') === 'discoveryFull') {
+          $(".d-editor-input").on('keyup', this._resizeComposer);
+          $(".d-editor-input").on('change', this._resizeComposer);
+        } else {
+          $(".d-editor-input").off('keyup', this._resizeComposer);
+          $(".d-editor-input").off('change', this._resizeComposer);
+        }
+      },
+
+      handleComposerResize() {
+        const $fields = $('.composer-fields');
+        const $textarea = $('.d-editor-input');
+        const $submit = $('.submit-panel');
+        $('#reply-control').css('height', $fields.height() + $submit.height() + $textarea[0].scrollHeight);
+      }
+    })
+
+    ComposerEditor.reopen({
+      @computed('composer.currentType')
+      placeholder() {
+        const composer = this.get('composer');
+        const isDiscovery = composer.get('isDiscovery');
+
+        if (isDiscovery) {
+          return `topic.type.${composer.get('currentType')}.body`
+        }
+        return "composer.reply_placeholder"
       }
     })
 

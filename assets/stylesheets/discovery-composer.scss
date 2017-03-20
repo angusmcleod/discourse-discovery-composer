@@ -7,10 +7,6 @@
     position: relative;
     background-color: initial;
 
-    &.discoveryInitial {
-      height: 80px;
-    }
-
     .saving-text {
       line-height: 40px;
       margin-left: 10px;
@@ -22,7 +18,7 @@
       min-width: initial;
       .composer-fields > span:first-of-type {
         float: left;
-        margin: 11px 6px 11px 3px;
+        margin: 12px 6px 11px 3px;
       }
       .reply-to {
         display: none;
@@ -41,15 +37,13 @@
       input#reply-title {
         margin: 7px 0;
         padding-right: 8px;
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.25);
       }
       .title-tip {
         position: absolute;
         right: 12px;
         top: 48px;
-        color: #ccc;
-        &.active {
-          color: #7b7b7b;
-        }
+        color: #7b7b7b;
       }
       .similar-titles {
         margin: 0;
@@ -70,6 +64,7 @@
       height: 100%;
       max-width: 100%;
       padding: 0 7px;
+      background-color: #f1f1f1;
       .reply-to {
         margin: 0;
         padding-top: 10px;
@@ -149,7 +144,7 @@
     }
     button {
       width: 100%;
-      color: #333;
+      background-color: white;
       color: $tertiary;
     }
     .active {
@@ -160,6 +155,7 @@
   .topic-type-text {
     &.body {
       display: inline-block;
+      margin-top: 10px;
     }
     &.description {
       display: inline-block;

@@ -2,7 +2,7 @@ en:
   js:
     composer:
       title_or_link_placeholder: 'Ask a question, start a discussion, post a document or rate a service'
-      input_tip: "Type a title then press enter"
+      input_tip: "Add a title then press enter"
       next: "Next"
       similar: "Consider posting in these similar topics first. Links open in a new tab."
       similar_create: "Post your own"
@@ -25,7 +25,7 @@ en:
           title: 'document'
           label: 'Document'
           description: 'Share a legal, government or civic document.'
-          body: 'Add the document you want to share below.'
+          body: 'Add the document you want to share.'
         review:
           title: 'review'
           label: 'Review'
@@ -35,4 +35,4 @@ en:
           title: 'default'
           label: 'Other'
           description: 'Post anything related to civic life in your area.'
-          body: 'Add the body of your post below.'
+          body: 'Add the body of your post.'
