@@ -87,7 +87,7 @@ after_initialize do
     end
   end
 
-  require 'topic_subtype'
+  require_dependency 'topic_subtype'
   class ::TopicSubtype
     def initialize(id, options)
       super
@@ -98,6 +98,11 @@ after_initialize do
         register type
       end
     end
+  end
+
+  require_dependency 'topic_view_serializer'
+  class ::TopicViewSerializer
+    attributes_from_topic :subtype
   end
 
   PostRevisor.track_topic_field(:topic_type)

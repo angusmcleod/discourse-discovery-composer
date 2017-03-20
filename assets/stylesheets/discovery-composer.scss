@@ -5,10 +5,15 @@
     left: 0px;
     bottom: initial;
     position: relative;
-    overflow: hidden;
     background-color: initial;
+
     &.discoveryInitial {
       height: 80px;
+    }
+
+    .saving-text {
+      line-height: 40px;
+      margin-left: 10px;
     }
 
     .contents {
@@ -56,9 +61,11 @@
         }
       }
     }
+
     .control {
       height: 100%;
     }
+
     .reply-area {
       height: 100%;
       max-width: 100%;
@@ -68,6 +75,7 @@
         padding-top: 10px;
       }
     }
+
     .wmd-controls {
       left: 7px;
       right: 7px;
@@ -75,15 +83,18 @@
       width: auto;
       display: none;
     }
+
     &.edit-title .wmd-controls {
       padding-top: 2px;
       top: 77px;
     }
+
     .submit-panel {
       display: none;
       width: initial;
       bottom: 12px;
     }
+
     .tag-chooser {
       position: absolute;
       left: 140px;
@@ -96,12 +107,15 @@
         outline: 1px solid #aaa;
       }
     }
+
     .cancel {
       display: none;
     }
+
     .grippie {
       display: none;
     }
+
   }
   .toggler {
     display: none;
@@ -157,4 +171,10 @@
       }
     }
   }
+}
+
+#topic-title .topic-icon {
+  position: absolute;
+  right: 6px;
+  top: 5px;
 }

@@ -10,7 +10,6 @@ export default {
     })
 
     Ember.addObserver(args.model, 'composeState', this, function(model, property) {
-      console.log(component)
       if (component._state == 'destroying') { return }
 
       const state = model.get('composeState');

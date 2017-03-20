@@ -42,7 +42,7 @@ export default {
   initialize(){
 
     Composer.serializeOnCreate('topic_type', 'currentType')
-    
+
     Composer.reopen({
       showCategoryChooser: false,
       similarTitleTopics: Ember.A(),
@@ -192,8 +192,11 @@ export default {
       @observes('composer.isDiscovery')
       showHideComposeBody() {
         if (this.get('composer.isDiscovery')) {
-          $("#reply-title").on('click', this._handleClick);
-          $(document).on('resize', this._handleWindowResize);
+          let self = this;
+          Ember.run.scheduleOnce('afterRender', function() {
+            $("#reply-title").on('click', self._handleClick);
+            $(document).on('resize', self._handleWindowResize);
+          })
           this.appEvents.on('composer:accept-title', this, this.handleAcceptTitle);
         }
       },
