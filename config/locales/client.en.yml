@@ -1,12 +1,12 @@
 en:
   js:
     composer:
-      title_or_link_placeholder: 'Ask a question, start a discussion, post a document or rate a service'
+      title_or_link_placeholder: 'Ask a question, post a document, start a discussion or review a service'
       input_tip: "Add a title then press enter"
       next: "Next"
       similar: "Consider posting in these similar topics first. Links open in a new tab."
       similar_create: "Post your own"
-      type_choice: "What kind of post is this?"
+      type_choice: "What this is main purpose of this post?"
     tagging:
       choose_for_topic: "Add tags"
     topic:
