@@ -3,8 +3,8 @@ import { observes, on } from 'ember-addons/ember-computed-decorators';
 
 export default MountWidget.extend({
   tagName: 'ul',
-  classNames: ["similar-title-topics"],
-  widget: 'similar-topics',
+  classNames: ["similar-titles"],
+  widget: 'similar-titles',
   topics: [],
 
   @observes('topics.[]')
@@ -14,7 +14,7 @@ export default MountWidget.extend({
 
   buildArgs() {
     return {
-      results: this.get('topics')
+      topics: this.get('topics')
     };
   }
 });

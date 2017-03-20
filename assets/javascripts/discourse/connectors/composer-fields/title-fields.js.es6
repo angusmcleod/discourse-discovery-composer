@@ -2,15 +2,18 @@ export default {
   setupComponent(args, component) {
     this.set('model', args.model);
     Ember.addObserver(args.model, 'title', this, function(model, property) {
+      if (component._state == 'destroying') { return }
+
       const title = model.get('title');
       let tipClass = (title && title.length > 0) ? 'active' : '';
       component.set('tipClass', tipClass);
     })
 
     Ember.addObserver(args.model, 'composeState', this, function(model, property) {
-      const state = model.get('composeState');
       console.log(component)
-      if (!component) { return }
+      if (component._state == 'destroying') { return }
+
+      const state = model.get('composeState');
       component.setProperties({
         showTip: state === 'discoveryInput',
         showTypes: state === 'discoveryTypes' || state === 'discoveryFull',
@@ -26,27 +29,27 @@ export default {
         // necessary placeholder
       },
       didChange: function(topics, offset, removeCount, addCount) {
-        if (component) {
-          component.set('topics', topics);
-        }
+        if (component._state == 'destroying') { return }
+        component.set('topics', topics);
       }
     })
 
     component.set('topicTypes', args.model.get('topicTypes'));
     component.set('currentType', args.model.get('currentType'));
-    Ember.addObserver(args.model, 'topicType', this, function(model, property) {
-      this.set('currentType', model.get('currentType'));
+    Ember.addObserver(args.model, 'currentType', this, function(model, property) {
+      if (component._state == 'destroying') { return }
+
+      component.set('currentType', model.get('currentType'));
     })
   },
 
   actions: {
     switchTopicType(topicType) {
-      this.set('currentType', topicType);
+      this.set('model.currentType', topicType);
     },
 
     goTo(state) {
-      const model = this.get('model');
-      model.set('composeState', `discovery${state}`);
+      this.set('model.composeState', `discovery${state}`);
     }
   }
 }

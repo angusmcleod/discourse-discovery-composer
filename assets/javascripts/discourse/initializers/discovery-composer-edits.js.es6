@@ -14,7 +14,7 @@ import { getOwner } from 'discourse-common/lib/get-owner';
 
 const discoveryComposeStates = {
   discoveryInitial: () => {
-    $('#reply-control').find('.topic-type-choice, .wmd-controls, .submit-panel').hide();
+    $('#reply-control').find('.reply-to, .topic-type-choice, .wmd-controls, .submit-panel').hide();
     $('#reply-control').css('height', '48px');
   },
   discoveryInput: () => {
@@ -23,10 +23,10 @@ const discoveryComposeStates = {
   },
   discoveryTypes: () => {
     $('#reply-control').find('.topic-type-choice').show();
-    $('#reply-control').css('height', '290px');
+    $('#reply-control').css('height', '280px');
   },
   discoverySimilar: () => {
-    $('#reply-control').css('height', $('.similar-title-topics').height() + 110);
+    $('#reply-control').css('height', $('.similar-titles').height() + 110);
   },
   discoveryFull: () => {
     $('#reply-control').css('height', '400px');
@@ -41,9 +41,8 @@ export default {
   name: 'discovery-composer',
   initialize(){
 
-    Composer.serializeOnCreate('topic_type', 'topicType')
-    Composer.serializeOnCreate('wiki')
-
+    Composer.serializeOnCreate('topic_type', 'currentType')
+    
     Composer.reopen({
       showCategoryChooser: false,
       similarTitleTopics: Ember.A(),
@@ -77,6 +76,21 @@ export default {
     })
 
     ComposerController.reopen({
+
+      // TO DO: combine the 'isDiscovery' properties on the model, controller and route into one
+      @computed('application.currentPath')
+      isDiscovery() {
+        const path = this.get('application.currentPath')
+        return path && path.indexOf('discovery') > -1;
+      },
+
+      @observes('model.composeState', 'isDiscovery')
+      convertOpenToInitial() {
+        if (this.get('model.composeState') === 'open' && this.get('isDiscovery')) {
+          this.set('model.composeState', 'discoveryInitial')
+        }
+      },
+
       actions: {
         switchTopicType(topicType) {
           this.set('model.topicType', topicType );
@@ -141,16 +155,15 @@ export default {
 
         const similarTitleTopics = composer.get('similarTitleTopics');
 
-        composer.store.find('similar-topic', {title, categoryId}).then(newTopics => {
+        ajax("/discovery/similar-title", { type: 'POST', data: { title, categoryId }}).then(result => {
           similarTitleTopics.clear();
-          similarTitleTopics.pushObjects(newTopics.get('content'));
+          similarTitleTopics.pushObjects(result);
 
           if (similarTitleTopics.get('length') > 0) {
             composer.set('composeState', 'discoverySimilar');
           } else {
             composer.set('composeState', 'discoveryTypes');
           }
-          console.log(composer.get('composeState'))
         });
       }
     })
@@ -179,7 +192,7 @@ export default {
       @observes('composer.isDiscovery')
       showHideComposeBody() {
         if (this.get('composer.isDiscovery')) {
-          $(document).on('click', this._handleClick);
+          $("#reply-title").on('click', this._handleClick);
           $(document).on('resize', this._handleWindowResize);
           this.appEvents.on('composer:accept-title', this, this.handleAcceptTitle);
         }
@@ -187,16 +200,13 @@ export default {
 
       @on('willDestroyElement')
       destroyExpandEvent() {
-        $(document).off('click', this._handleClick);
+        $("#reply-title").off('click', this._handleClick);
         $(document).off('resize', this._handleWindowResize);
       },
 
       handleClick(event) {
         if (event.target.id === 'reply-title' && this.get('composer.composeState') === 'discoveryInitial') {
           this.set('composer.composeState', 'discoveryInput');
-        }
-        if (!$(event.target).closest(this.$()).length) {
-          this.set('composer.composeState', 'discoveryInitial');
         }
       },
 

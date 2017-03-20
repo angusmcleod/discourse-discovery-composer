@@ -16,80 +16,43 @@ after_initialize do
     end
   end
 
-  require_dependency "application_controller"
-  class DiscoveryComposer::TypeController < ::ApplicationController
-    def determine
-      title = params[:title]
-      model = DiscourseMachineLearning::Model.new(TYPE_MODEL)
-      type = model.eval(title)
-      render json: success_json.merge(type: type)
-    end
-  end
-
   DiscoveryComposer::Engine.routes.draw do
-    post "determine" => "type#determine"
+    post "determine-type" => "composer#determine_type"
+    post "similar-title" => "composer#similar_title"
   end
 
   Discourse::Application.routes.append do
     mount ::DiscoveryComposer::Engine, at: "discovery"
   end
 
-  require 'topic_subtype'
-  class ::TopicSubtype
-    def initialize(id, options)
-      super
-      SiteSetting.topic_types.each do |type|
-        define_method "self.#{type}" do
-          type
-        end
-        register type
-      end
-    end
+  class DiscoveryComposer::SimilarSerializer < ApplicationSerializer
+    attributes :id, :title, :created_at, :url
   end
 
-  PostRevisor.track_topic_field(:wiki)
-  PostRevisor.track_topic_field(:topic_type)
-
-  DiscourseEvent.on(:post_created) do |post, opts, user|
-    if post.is_first_post? and opts[:topic_type]
-      topic = Topic.find(post.topic_id)
-      topic_type = opts[:topic_type] & SiteSetting.topic_types.split('|')
-      if topic_type == 'wiki'
-        post.wiki = true
-        post.save!
-      end
-      topic.subtype = topic_type
-      topic.save!
+  require_dependency 'similar_topic_serializer'
+  require_dependency "application_controller"
+  class DiscoveryComposer::ComposerController < ::ApplicationController
+    def determine_type
+      title = params[:title]
+      model = DiscourseMachineLearning::Model.new(TYPE_MODEL)
+      type = model.eval(title)
+      render json: success_json.merge(type: type)
     end
-  end
 
-  require 'similar_topics_controller'
-  class ::SimilarTopicsController
-    def index
-      puts
-      if params.respond_to?(:raw)
-        super
-      else
-        params.require(:title)
-        title = params[:title]
-        categoryId = params[:category_id]
-        invalid_length = check_invalid_length('title', params[:title])
+    def similar_title
+      title = params[:title]
+      categoryId = params[:categoryId]
 
-        return render json: [] if invalid_length || !Topic.count_exceeds_minimum?
-
-        topics = Topic.similar_title_to(title, categoryId, current_user).to_a
-        topics.map! {|t| SimilarTopic.new(t) }
-        render_serialized(topics, SimilarTopicSerializer, root: :similar_topics, rest_serializer: true)
-      end
-    end
-  end
-
-  require 'topic'
-  require 'search'
-  class ::Topic
-    def self.similar_title_to(title, categoryId, user=nil)
       return [] unless title.present?
 
+      topics = Topic.similar_title_to(title, categoryId, current_user).to_a
+      render_serialized(topics, DiscoveryComposer::SimilarSerializer)
+    end
+  end
+
+  require_dependency 'search'
+  Topic.class_eval do
+    def self.similar_title_to(title, categoryId, user=nil)
       filter_words = Search.prepare_data(title);
       ts_query = Search.ts_query(filter_words, nil, "|")
 
@@ -106,8 +69,8 @@ after_initialize do
         candidates = candidates.where("topics.id NOT IN (?)", exclude_topic_ids)
       end
 
-      if categoryId.present? && SiteSetting.composer_limit_similarity_to_category
-        candidates = candidates.where("category_id = categoryId")
+      if categoryId.present?
+        candidates = candidates.where("topics.category_id = ?", categoryId)
       end
 
       candidate_ids = candidates.pluck(:id)
@@ -120,8 +83,35 @@ after_initialize do
                        .where("topics.id IN (?)", candidate_ids)
                        .where("similarity(topics.title, :title) > 0.2", title: title)
                        .order('similarity desc')
-
       similar
+    end
+  end
+
+  require 'topic_subtype'
+  class ::TopicSubtype
+    def initialize(id, options)
+      super
+      SiteSetting.topic_types.each do |type|
+        define_method "self.#{type}" do
+          type
+        end
+        register type
+      end
+    end
+  end
+
+  PostRevisor.track_topic_field(:topic_type)
+
+  DiscourseEvent.on(:post_created) do |post, opts, user|
+    topic_type = opts[:topic_type]
+    if post.is_first_post? and topic_type
+      topic = Topic.find(post.topic_id)
+      if topic_type == 'wiki'
+        post.wiki = true
+        post.save!
+      end
+      topic.subtype = topic_type
+      topic.save!
     end
   end
 end
