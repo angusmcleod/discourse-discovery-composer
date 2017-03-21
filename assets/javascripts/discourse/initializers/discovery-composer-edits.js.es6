@@ -37,7 +37,7 @@ const discoveryComposeStates = {
     });
   },
   discoverySimilar: () => {
-    let height = $('.similar-titles').height() + 135;
+    let height = $('.similar-titles').height() + 120;
     $('#reply-control').find('.reply-to, .topic-type-choice, .wmd-controls, .submit-panel').hide();
     $('#reply-control').css({
       'min-height': height,
@@ -110,7 +110,14 @@ export default {
         switchTopicType(topicType) {
           this.set('model.topicType', topicType );
         }
+      },
+
+      close() {
+        if (!this.get('isDiscovery')) {
+          this.setProperties({ model: null, lastValidatedAt: null });
+        }
       }
+
     })
 
     ComposerTitle.reopen({
