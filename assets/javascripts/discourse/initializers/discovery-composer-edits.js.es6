@@ -29,14 +29,16 @@ const discoveryComposeStates = {
     });
   },
   discoveryTypes: () => {
+    let height = $('.composer-fields').height() + 10;
     $('#reply-control').find('.topic-type-choice').show();
     $('#reply-control').css({
-      'min-height': '325px',
-      'height': '325px'
+      'min-height': height,
+      'height': height
     });
   },
   discoverySimilar: () => {
-    let height = $('.similar-titles').height() + 110;
+    let height = $('.similar-titles').height() + 135;
+    $('#reply-control').find('.reply-to, .topic-type-choice, .wmd-controls, .submit-panel').hide();
     $('#reply-control').css({
       'min-height': height,
       'height': height
@@ -56,12 +58,12 @@ export default {
   initialize(){
 
     Composer.serializeOnCreate('topic_type', 'currentType')
-
+    Composer.serializeOnCreate('make_wiki', 'makeWiki')
     Composer.reopen({
       showCategoryChooser: false,
       similarTitleTopics: Ember.A(),
       currentType: 'question',
-      wiki: Ember.computed.bool('topicType', 'wiki'),
+      makeWiki: false,
 
       @computed('composeState')
       isDiscovery: function() {
@@ -85,11 +87,6 @@ export default {
       @computed('composeState')
       hideRating() {
         return this.get('isDiscovery') && this.get('composeState') !== 'discoveryFull';
-      },
-
-      @observes('currentType')
-      test() {
-        console.log(this.get('currentType'))
       }
     })
 

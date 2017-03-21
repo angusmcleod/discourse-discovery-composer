@@ -105,12 +105,14 @@ after_initialize do
   end
 
   PostRevisor.track_topic_field(:topic_type)
+  PostRevisor.track_topic_field(:make_wiki)
 
   DiscourseEvent.on(:post_created) do |post, opts, user|
     topic_type = opts[:topic_type]
+    make_wiki = opts[:make_wiki]
     if post.is_first_post? and topic_type
       topic = Topic.find(post.topic_id)
-      if topic_type == 'wiki'
+      if make_wiki.to_s == "true"
         post.wiki = true
         post.save!
       end

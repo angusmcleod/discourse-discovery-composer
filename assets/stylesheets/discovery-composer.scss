@@ -124,9 +124,12 @@
   }
 }
 
+.discovery-input {
+  margin-top: 10px;
+}
+
 .topic-type-container {
   display: flex;
-  justify-content: space-between;
   margin-bottom: 10px;
   &.types {
     display: block;
@@ -139,6 +142,7 @@
   .topic-type-btn {
     flex: 0 1 auto;
     width: 19%;
+    margin-right: 12px;
     .fa {
       margin-right: 3px;
     }

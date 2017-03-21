@@ -4,6 +4,4 @@ plugins:
     type: list
     choices:
      - question
-     - discussion
      - rating
-     - wiki

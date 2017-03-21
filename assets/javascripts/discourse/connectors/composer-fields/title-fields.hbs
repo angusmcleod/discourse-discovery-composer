@@ -31,3 +31,10 @@
     {{d-button class="btn-primary next" label="composer.similar_create" action="goTo" actionParam="Types"}}
   </div>
 {{/if}}
+
+{{#if showMakeWiki}}
+  <div class="discovery-input">
+    {{input type="checkbox" checked=model.makeWiki}}
+    {{i18n 'composer.make_wiki'}}
+  </div>
+{{/if}}

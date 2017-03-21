@@ -13,13 +13,14 @@ export default {
       if (component._state == 'destroying') { return }
 
       const state = model.get('composeState');
+      const type = model.get('currentType');
       component.setProperties({
         showTip: state === 'discoveryInput',
         showTypes: state === 'discoveryTypes' || state === 'discoveryFull',
         typesState: state === 'discoveryTypes',
-        showSimilarTitleTopics: state === 'discoverySimilar'
+        showSimilarTitleTopics: state === 'discoverySimilar',
+        containerClass: state === 'discoveryTypes' ? 'types' : 'full'
       })
-      component.set('containerClass', state === 'discoveryTypes' ? 'types' : 'full');
     })
 
     const similarTitleTopics = args.model.get('similarTitleTopics');
@@ -38,7 +39,12 @@ export default {
     Ember.addObserver(args.model, 'currentType', this, function(model, property) {
       if (component._state == 'destroying') { return }
 
-      component.set('currentType', model.get('currentType'));
+      const state = model.get('composeState');
+      const type = model.get('currentType');
+      component.setProperties({
+        currentType: type,
+        showMakeWiki: state === 'discoveryFull' && type === 'default'
+      })
     })
   },
 
