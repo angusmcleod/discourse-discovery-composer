@@ -217,7 +217,6 @@ export default {
       setupBoundMethods() {
         this._super();
         this._handleClick = Ember.run.bind(this, this.handleClick);
-        this._handleWindowResize = Ember.run.bind(this, this.handleWindowResize);
         this._resizeComposer = Ember.run.bind(this, this.handleComposerResize);
       },
 
@@ -238,7 +237,6 @@ export default {
           let self = this;
           Ember.run.scheduleOnce('afterRender', function() {
             $("#reply-title").on('click', self._handleClick);
-            $(document).on('resize', self._handleWindowResize);
           })
           this.appEvents.on('composer:accept-title', this, this.handleAcceptTitle);
         }
@@ -247,18 +245,12 @@ export default {
       @on('willDestroyElement')
       destroyExpandEvent() {
         $("#reply-title").off('click', this._handleClick);
-        $(document).off('resize', this._handleWindowResize);
       },
 
       handleClick(event) {
         if (event.target.id === 'reply-title' && this.get('composer.composeState') === 'discoveryInitial') {
           this.set('composer.composeState', 'discoveryInput');
         }
-      },
-
-      handleWindowResize(event) {
-        let titleWidth = $('.title-input').width() - 21;
-        $('#reply-title').css('width', `${titleWidth}px`)
       },
 
       handleAcceptTitle(event) {

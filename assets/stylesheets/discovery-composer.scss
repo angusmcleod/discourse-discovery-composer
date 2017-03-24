@@ -36,6 +36,7 @@
         display: block;
       }
       input#reply-title {
+        width: calc(100% - 20px);
         margin: 7px 0;
         padding-right: 8px;
         box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.25);
