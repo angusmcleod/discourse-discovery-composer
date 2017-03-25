@@ -2,6 +2,7 @@ plugins:
   topic_types:
     client: true
     type: list
+    default: ''
     choices:
      - question
      - rating
