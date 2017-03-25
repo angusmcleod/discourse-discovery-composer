@@ -327,8 +327,13 @@ export default {
                            return pathSlug === filter;
                          }).length > 0;
         let categoryPath = pathSlug === 'c';
+        return filterPath || categoryPath || this.isCategories();
+      },
+
+      isCategories: function() {
+        const pathSlug = window.location.pathname.split('/')[1];
         let categoriesPath = pathSlug === 'categories';
-        return filterPath || categoryPath || categoriesPath
+        return categoriesPath;
       },
 
       renderTemplate(controller, model) {
@@ -344,7 +349,8 @@ export default {
         didTransition: function() {
           this._super();
           if (this.currentUser && (this.get('firstRenderDiscovery') || this.get('transitionToDiscovery'))) {
-            const controller = this.controllerFor("discovery/topics")
+            let controller = this.isCategories() ? this.controllerFor("discovery/categories") :
+                             this.controllerFor("discovery/topics");
             this.controllerFor('composer').open({
               categoryId: controller.get('category.id'),
               action: Composer.CREATE_TOPIC,
