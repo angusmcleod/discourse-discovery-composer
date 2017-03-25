@@ -79,7 +79,8 @@ export default {
 
       @computed('hideRating')
       topicTypes: function() {
-        const types = Discourse.SiteSettings.topic_types.split('|');
+        const setting = Discourse.SiteSettings.topic_types;
+        let types = setting ? setting.split('|') : [];
         types.push('default');
         return types;
       },
