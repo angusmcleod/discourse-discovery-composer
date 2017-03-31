@@ -43,7 +43,8 @@ export default {
       const type = model.get('currentType');
       component.setProperties({
         currentType: type,
-        showMakeWiki: state === 'discoveryFull' && type === 'default'
+        showMakeWiki: state === 'discoveryFull' && type === 'default',
+        isEvent: state === 'discoveryFull' && type === 'event'
       })
     })
   },
@@ -52,9 +53,12 @@ export default {
     switchTopicType(topicType) {
       this.set('model.currentType', topicType);
     },
-
     goTo(state) {
       this.set('model.composeState', `discovery${state}`);
+    },
+    showScheduleBuilder() {
+      const controller = this.container.lookup('controller:composer');
+      controller.send('showScheduleBuilder');
     }
   }
 }

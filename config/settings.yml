@@ -6,3 +6,4 @@ plugins:
     choices:
      - question
      - rating
+     - event

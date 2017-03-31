@@ -1,8 +1,8 @@
 en:
   js:
     composer:
-      title_or_link_placeholder: 'Make a post'
-      input_tip: "Add a title then press enter"
+      title_or_link_placeholder: 'Post a question, review, event or anything else about your area.'
+      input_tip: "Add a title then press enter."
       next: "Next"
       similar: "Consider posting in these similar topics before creating your own topic."
       similar_create: "Start your own"
@@ -22,6 +22,11 @@ en:
           label: 'Review'
           description: "Review a legal, government or civic service."
           body: "Describe your experience with the service."
+        event:
+          title: 'event'
+          label: 'Event'
+          description: "Post a civic event happening in your area."
+          body: "Add all relevant details of the event."
         default:
           title: 'default'
           label: 'Other'

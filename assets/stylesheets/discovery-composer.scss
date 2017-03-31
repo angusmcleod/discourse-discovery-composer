@@ -7,12 +7,10 @@
     position: relative;
     background-color: initial;
     z-index: 1;
-
     .saving-text {
       line-height: 40px;
       margin-left: 10px;
     }
-
     .contents {
       padding: 0;
       height: 100%;
@@ -57,11 +55,9 @@
         }
       }
     }
-
     .control {
       height: 100%;
     }
-
     .reply-area {
       height: 100%;
       max-width: 100%;
@@ -72,26 +68,29 @@
         padding-top: 10px;
       }
     }
-
     .wmd-controls {
       left: 7px;
       right: 7px;
       bottom: 50px !important;
       width: auto;
       display: none;
+      .d-editor-preview-header,
+      .d-editor-preview-wrapper {
+        display: none;
+      }
+      .d-editor-button-bar, .d-editor-textarea-wrapper {
+        width: 100%;
+      }
     }
-
     &.edit-title .wmd-controls {
       padding-top: 2px;
       top: 77px;
     }
-
     .submit-panel {
       display: none;
       width: initial;
       bottom: 12px;
     }
-
     .tag-chooser {
       position: absolute;
       left: 140px;
@@ -104,15 +103,12 @@
         outline: 1px solid #aaa;
       }
     }
-
     .cancel {
       display: none;
     }
-
     .grippie {
       display: none;
     }
-
   }
   .toggler {
     display: none;

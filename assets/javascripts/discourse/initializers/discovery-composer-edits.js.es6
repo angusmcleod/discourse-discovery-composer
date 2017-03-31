@@ -2,6 +2,7 @@ import Composer from 'discourse/models/composer';
 import ComposerController from 'discourse/controllers/composer';
 import ComposerBody from 'discourse/components/composer-body';
 import ComposerEditor from 'discourse/components/composer-editor';
+import dEditor from 'discourse/components/d-editor';
 import ComposerTitle from 'discourse/components/composer-title';
 import ComposerMessages from 'discourse/components/composer-messages';
 import TopicStatusView from 'discourse/raw-views/topic-status';
@@ -56,7 +57,6 @@ const discoveryComposeStates = {
 export default {
   name: 'discovery-composer',
   initialize(){
-
     Composer.serializeOnCreate('topic_type', 'currentType')
     Composer.serializeOnCreate('make_wiki', 'makeWiki')
     Composer.reopen({

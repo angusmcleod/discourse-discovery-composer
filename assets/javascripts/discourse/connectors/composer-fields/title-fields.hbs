@@ -38,3 +38,9 @@
     {{i18n 'composer.make_wiki'}}
   </div>
 {{/if}}
+
+{{#if isEvent}}
+  <div class="discovery-input">
+    {{d-button icon='calendar' label="calendar.schedule.ui_builder.title" action="showScheduleBuilder"}}
+  </div>
+{{/if}}
