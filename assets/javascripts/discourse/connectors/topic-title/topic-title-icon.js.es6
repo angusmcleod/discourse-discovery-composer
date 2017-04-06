@@ -1,4 +1,4 @@
-import topicIconClass from '../../lib/topic-icon';
+import topicIconClass from '../../lib/topic-icon-class';
 
 export default {
   setupComponent(args, component) {

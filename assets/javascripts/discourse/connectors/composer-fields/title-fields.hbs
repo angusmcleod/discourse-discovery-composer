@@ -39,8 +39,28 @@
   </div>
 {{/if}}
 
-{{#if isEvent}}
+{{#if showAddEvent}}
   <div class="discovery-input">
-    {{d-button icon='calendar' label="calendar.schedule.ui_builder.title" action="showScheduleBuilder"}}
+    {{d-button icon='calendar' label="calendar_widget.btn_label" action="showAddEvent"}}
+  </div>
+{{/if}}
+
+{{#if eventLabel}}
+  <div class="discovery-input">
+    <button class='btn current-event' {{action 'showAddEvent'}}><i class='fa fa-calendar'></i>{{eventLabel}}</button>
+    {{d-button icon="times" action="removeEvent"}}
+  </div>
+{{/if}}
+
+{{#if showAddLocation}}
+  <div class="discovery-input">
+    {{d-button icon='map-marker' label='composer.location.btn' action='showAddLocation'}}
+  </div>
+{{/if}}
+
+{{#if locationLabel}}
+  <div class="discovery-input">
+    <button class='btn current-location' {{action 'showAddLocation'}}><i class='fa fa-map-marker'></i>{{locationLabel}}</button>
+    {{d-button icon="times" action="removeLocation"}}
   </div>
 {{/if}}

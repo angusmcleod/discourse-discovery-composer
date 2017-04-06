@@ -1,4 +1,4 @@
-var topicIcon = function(topicType) {
+var topicIconClass = function(topicType) {
   switch(topicType){
     case 'default':
       return 'comments-o';
@@ -6,9 +6,7 @@ var topicIcon = function(topicType) {
       return 'question-circle';
     case 'rating':
       return 'star';
-    case 'event':
-      return 'calendar';
   }
 }
 
-export default topicIcon
+export default topicIconClass;

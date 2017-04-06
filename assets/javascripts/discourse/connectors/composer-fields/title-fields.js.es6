@@ -18,9 +18,43 @@ export default {
         showTip: state === 'discoveryInput',
         showTypes: state === 'discoveryTypes' || state === 'discoveryFull',
         typesState: state === 'discoveryTypes',
+        showAddLocation: state === 'discoveryFull' && !model.get('location'),
+        showAddEvent: state === 'discoveryFull' && type === 'event',
         showSimilarTitleTopics: state === 'discoverySimilar',
         containerClass: state === 'discoveryTypes' ? 'types' : 'full'
       })
+    })
+
+    Ember.addObserver(args.model, 'location', this, function(model, property) {
+      const location = model.get('location')
+      if (location) {
+        component.setProperties({
+          locationLabel: location.display_name,
+          showAddLocation: false,
+        })
+      } else {
+        component.setProperties({
+          locationLabel: null,
+          showAddLocation: true
+        })
+      }
+    })
+
+    Ember.addObserver(args.model, 'event', this, function(model, property) {
+      const event = model.get('event');
+      if (event) {
+        let label = moment(event.start).format('MMMM Do, h:mm a') + ' to '
+                    + moment(event.end).format('h:mm a');
+        component.setProperties({
+          eventLabel: label,
+          showAddEvent: false
+        });
+      } else {
+        component.setProperties({
+          eventLabel: null,
+          showAddEvent: true
+        });
+      }
     })
 
     const similarTitleTopics = args.model.get('similarTitleTopics');
@@ -44,7 +78,7 @@ export default {
       component.setProperties({
         currentType: type,
         showMakeWiki: state === 'discoveryFull' && type === 'default',
-        isEvent: state === 'discoveryFull' && type === 'event'
+        showAddEvent: state === 'discoveryFull' && type === 'event' && !model.get('event')
       })
     })
   },
@@ -56,9 +90,19 @@ export default {
     goTo(state) {
       this.set('model.composeState', `discovery${state}`);
     },
-    showScheduleBuilder() {
+    showAddEvent() {
       const controller = this.container.lookup('controller:composer');
-      controller.send('showScheduleBuilder');
+      controller.send('showAddEvent');
+    },
+    showAddLocation() {
+      const controller = this.container.lookup('controller:composer');
+      controller.send('showAddLocation');
+    },
+    removeLocation() {
+      this.set('model.location', null);
+    },
+    removeEvent() {
+      this.set('model.event', null);
     }
   }
 }

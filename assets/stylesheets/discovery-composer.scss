@@ -124,6 +124,13 @@
 
 .discovery-input {
   margin-top: 10px;
+  margin-right: 10px;
+  display: inline-block;
+}
+
+.current-location {
+  max-width: 90%;
+  text-align: left;
 }
 
 .topic-type-container {

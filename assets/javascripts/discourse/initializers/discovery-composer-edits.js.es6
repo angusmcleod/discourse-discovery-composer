@@ -2,11 +2,8 @@ import Composer from 'discourse/models/composer';
 import ComposerController from 'discourse/controllers/composer';
 import ComposerBody from 'discourse/components/composer-body';
 import ComposerEditor from 'discourse/components/composer-editor';
-import dEditor from 'discourse/components/d-editor';
 import ComposerTitle from 'discourse/components/composer-title';
 import ComposerMessages from 'discourse/components/composer-messages';
-import TopicStatusView from 'discourse/raw-views/topic-status';
-import topicIconClass from '../lib/topic-icon';
 import DiscoveryRoute from 'discourse/routes/application';
 import TopicRoute from 'discourse/routes/topic';
 import TopicAdapter from 'discourse/adapters/topic';
@@ -287,23 +284,6 @@ export default {
           return `topic.type.${composer.get('currentType')}.body`
         }
         return "composer.reply_placeholder"
-      }
-    })
-
-    TopicStatusView.reopen({
-      renderDiv: true,
-
-      @observes('statuses')
-      @on('init')
-      _setup(){
-        let type = this.get('topic.type')
-        let topicIcon = {
-          icon: topicIconClass(type),
-          title: I18n.t("topic." + type + ".title"),
-          openTag: 'span',
-          closeTag: 'span'
-        }
-        this.get('statuses').pushObject(topicIcon)
       }
     })
 
