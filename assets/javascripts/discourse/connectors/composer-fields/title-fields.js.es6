@@ -31,8 +31,9 @@ export default {
     Ember.addObserver(args.model, 'location', this, function(model, property) {
       const location = model.get('location')
       if (location) {
+        let label = location.address.house_number + ', ' + location.address.road + ', ' + location.address.city;
         component.setProperties({
-          locationLabel: location.display_name,
+          locationLabel: label,
           showAddLocation: false,
         })
       } else {
