@@ -1,3 +1,5 @@
+import { getOwner } from 'discourse-common/lib/get-owner';
+
 export default {
   setupComponent(args, component) {
     this.set('model', args.model);
@@ -24,7 +26,6 @@ export default {
         showSimilarTitleTopics: state === 'discoverySimilar',
         containerClass: state === 'discoveryTypes' ? 'types' : 'full'
       })
-      console.log(type, model.get('showRating'), component.get('showRating'))
     })
 
     Ember.addObserver(args.model, 'location', this, function(model, property) {
@@ -83,7 +84,6 @@ export default {
         showAddEvent: state === 'discoveryFull' && type === 'event' && !model.get('event'),
         showRating: state === 'discoveryFull' && type === 'rating' && model.get('showRating')
       })
-      console.log(type, model.get('showRating'), component.get('showRating'))
     })
   },
 
@@ -95,11 +95,11 @@ export default {
       this.set('model.composeState', `discovery${state}`);
     },
     showAddEvent() {
-      const controller = this.container.lookup('controller:composer');
+      const controller = getOwner(this).lookup('controller:composer');
       controller.send('showAddEvent');
     },
     showAddLocation() {
-      const controller = this.container.lookup('controller:composer');
+      const controller = getOwner(this).lookup('controller:composer');
       controller.send('showAddLocation');
     },
     removeLocation() {

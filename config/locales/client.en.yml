@@ -29,6 +29,6 @@ en:
           body: "Add all relevant details of the event."
         default:
           title: 'default'
-          label: 'Other'
+          label: 'General'
           description: 'Post anything related to civic life in your area.'
           body: 'Add the body of your post.'
