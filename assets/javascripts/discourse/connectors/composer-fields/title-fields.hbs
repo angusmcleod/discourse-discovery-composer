@@ -41,7 +41,7 @@
 
 {{#if showAddEvent}}
   <div class="discovery-input">
-    {{d-button icon='calendar' label="calendar_widget.btn_label" action="showAddEvent"}}
+    {{d-button icon='calendar' label="event_widget.btn_label" action="showAddEvent"}}
   </div>
 {{/if}}
 
@@ -49,6 +49,12 @@
   <div class="discovery-input">
     <button class='btn current-event' {{action 'showAddEvent'}}><i class='fa fa-calendar'></i>{{eventLabel}}</button>
     {{d-button icon="times" action="removeEvent"}}
+  </div>
+{{/if}}
+
+{{#if showRating}}
+  <div class="discovery-input">
+    {{select-rating rating=model.rating includeRating=model.includeRating}}
   </div>
 {{/if}}
 

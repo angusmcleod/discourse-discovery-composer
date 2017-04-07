@@ -35,7 +35,7 @@ const discoveryComposeStates = {
     });
   },
   discoverySimilar: () => {
-    let height = $('.similar-titles').height() + 120;
+    let height = $('.similar-titles').height() + 115;
     $('#reply-control').find('.reply-to, .topic-type-choice, .wmd-controls, .submit-panel').hide();
     $('#reply-control').css({
       'min-height': height,
@@ -59,6 +59,7 @@ export default {
     Composer.reopen({
       showCategoryChooser: false,
       similarTitleTopics: Ember.A(),
+      ratingPluginDisplay: false,
       currentType: 'question',
       makeWiki: false,
 

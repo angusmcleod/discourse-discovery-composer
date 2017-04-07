@@ -20,9 +20,11 @@ export default {
         typesState: state === 'discoveryTypes',
         showAddLocation: state === 'discoveryFull' && !model.get('location'),
         showAddEvent: state === 'discoveryFull' && type === 'event',
+        showRating: state === 'discoveryFull' && type === 'rating' && model.get('showRating'),
         showSimilarTitleTopics: state === 'discoverySimilar',
         containerClass: state === 'discoveryTypes' ? 'types' : 'full'
       })
+      console.log(type, model.get('showRating'), component.get('showRating'))
     })
 
     Ember.addObserver(args.model, 'location', this, function(model, property) {
@@ -78,8 +80,10 @@ export default {
       component.setProperties({
         currentType: type,
         showMakeWiki: state === 'discoveryFull' && type === 'default',
-        showAddEvent: state === 'discoveryFull' && type === 'event' && !model.get('event')
+        showAddEvent: state === 'discoveryFull' && type === 'event' && !model.get('event'),
+        showRating: state === 'discoveryFull' && type === 'rating' && model.get('showRating')
       })
+      console.log(type, model.get('showRating'), component.get('showRating'))
     })
   },
 
