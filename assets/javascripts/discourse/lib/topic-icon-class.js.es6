@@ -6,6 +6,8 @@ var topicIconClass = function(topicType) {
       return 'question-circle';
     case 'rating':
       return 'star';
+    case 'event':
+      return 'calendar';
   }
 }
 

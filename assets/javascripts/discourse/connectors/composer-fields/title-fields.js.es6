@@ -1,5 +1,5 @@
 import { getOwner } from 'discourse-common/lib/get-owner';
-import { displayAddress } from 'discourse/plugins/civil-navigation/discourse/lib/map-utilities';
+import { locationLabel } from 'discourse/plugins/civil-navigation/discourse/lib/map-utilities';
 
 export default {
   setupComponent(args, component) {
@@ -31,18 +31,8 @@ export default {
 
     Ember.addObserver(args.model, 'location', this, function(model, property) {
       const location = model.get('location')
-      if (location) {
-        let label = displayAddress(location);
-        component.setProperties({
-          locationLabel: label,
-          showAddLocation: false,
-        })
-      } else {
-        component.setProperties({
-          locationLabel: null,
-          showAddLocation: true
-        })
-      }
+      let label = location ? locationLabel(location) : null;
+      component.set('composerLocationLabel', label);
     })
 
     Ember.addObserver(args.model, 'event', this, function(model, property) {

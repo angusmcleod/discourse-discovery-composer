@@ -41,13 +41,13 @@
 
 {{#if showAddEvent}}
   <div class="discovery-input">
-    {{d-button icon='calendar' label="event_widget.btn_label" action="showAddEvent"}}
+    {{d-button label="event_widget.btn_label" action="showAddEvent"}}
   </div>
 {{/if}}
 
 {{#if eventLabel}}
   <div class="discovery-input">
-    <button class='btn current-event' {{action 'showAddEvent'}}><i class='fa fa-calendar'></i>{{eventLabel}}</button>
+    <button class='btn current-event' {{action 'showAddEvent'}}>{{eventLabel}}</button>
     {{d-button icon="times" action="removeEvent"}}
   </div>
 {{/if}}
@@ -58,15 +58,20 @@
   </div>
 {{/if}}
 
-{{#if showAddLocation}}
+{{#if composerLocationLabel}}
   <div class="discovery-input">
-    {{d-button icon='map-marker' label='composer.location.btn' action='showAddLocation'}}
-  </div>
-{{/if}}
-
-{{#if locationLabel}}
-  <div class="discovery-input">
-    <button class='btn current-location' {{action 'showAddLocation'}}><i class='fa fa-map-marker'></i>{{locationLabel}}</button>
+    <button class='btn current-location' {{action 'showAddLocation'}}>
+      {{#if hasGeoLocation}}
+        <i class='fa fa-map-marker'></i>
+      {{/if}}
+      {{composerLocationLabel}}
+    </button>
     {{d-button icon="times" action="removeLocation"}}
   </div>
+{{else}}
+  {{#if showAddLocation}}
+    <div class="discovery-input">
+      {{d-button label='composer.location.btn' action='showAddLocation'}}
+    </div>
+  {{/if}}
 {{/if}}
