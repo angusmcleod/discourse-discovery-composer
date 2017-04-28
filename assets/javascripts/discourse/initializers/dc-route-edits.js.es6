@@ -1,3 +1,4 @@
+import ApplicationRoute from 'discourse/routes/application';
 import DiscoveryRoute from 'discourse/routes/discovery';
 import TopicRoute from 'discourse/routes/topic';
 import Composer from 'discourse/models/composer';
@@ -6,23 +7,15 @@ import { on } from 'ember-addons/ember-computed-decorators';
 export default {
   name: 'dc-route-edits',
   initialize(){
+    ApplicationRoute.reopen({
+      renderTemplate() {
+        this._super();
+        // using disconnectOutlet here results in ad hoc errors, a placeholder is more stable;
+        this.render('placeholder', { into: 'application', outlet: 'composer' });
+      }
+    })
+
     DiscoveryRoute.reopen({
-      disconnectComposer: function() {
-        if (this.currentUser) {
-          this.disconnectOutlet({
-            outlet: 'composer',
-            parentView: 'application'
-          });
-        }
-      },
-
-      renderTemplate(controller, model) {
-        this._super(controller, model);
-        if (this.currentUser) {
-          this.disconnectComposer();
-        }
-      },
-
       getController: function() {
         const path = window.location.pathname.split('/')[1];
         let controllerName = path === 'categories' ? "discovery/categories" : "discovery/topics";
@@ -30,6 +23,7 @@ export default {
       },
 
       openDiscoveryComposer: function() {
+        this.render('composer', { outlet: 'discovery-composer', into: 'sidebar-wrapper'})
         const controller = this.getController();
         this.controllerFor('composer').open({
           categoryId: controller.get('category.id'),
@@ -41,6 +35,7 @@ export default {
       },
 
       closeDiscoveryComposer: function() {
+        this.disconnectOutlet({ outlet: 'discovery-composer', parentView: 'sidebar-wrapper'})
         const composer = this.controllerFor('composer');
         composer.set('model.isDiscovery', false);
         composer.shrink();
@@ -54,10 +49,9 @@ export default {
         },
 
         willTransition: function(transition) {
+          this._super();
           if (this.currentUser) {
-            if (transition && transition.targetName.indexOf('discovery') > -1) {
-              this.disconnectComposer();
-            } else {
+            if (!transition || transition.targetName.indexOf('discovery') === -1) {
               this.closeDiscoveryComposer();
             }
           }
@@ -79,10 +73,10 @@ export default {
       @on('deactivate')
       removeComposer() {
         if (this.currentUser) {
-          this.disconnectOutlet({
-            outlet: 'composer',
-            parentView: 'application'
-          });
+          this.render('placeholder', {
+            into: 'application',
+            outlet: 'composer'
+          })
         }
       }
     })
