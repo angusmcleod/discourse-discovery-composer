@@ -52,7 +52,7 @@ const discoveryComposeStates = {
 }
 
 export default {
-  name: 'discovery-composer',
+  name: 'pavilion-composer-edits',
   initialize(){
     Composer.serializeOnCreate('topic_type', 'currentType')
     Composer.serializeOnCreate('make_wiki', 'makeWiki')
@@ -313,8 +313,12 @@ export default {
 
       isCategories: function() {
         const pathSlug = window.location.pathname.split('/')[1];
-        let categoriesPath = pathSlug === 'categories';
-        return categoriesPath;
+        return pathSlug === 'categories';
+      },
+
+      isHome: function() {
+        const pathSlug = window.location.pathname.split('/')[1];
+        return pathSlug === 'home';
       },
 
       renderTemplate(controller, model) {
@@ -327,11 +331,11 @@ export default {
 
       actions: {
 
-        didTransition: function() {
+        didTransition: function(transition) {
           this._super();
-          if (this.currentUser && (this.get('firstRenderDiscovery') || this.get('transitionToDiscovery'))) {
+          if (this.currentUser && !this.isHome() && (this.get('firstRenderDiscovery') || this.get('transitionToDiscovery'))) {
             let controller = this.isCategories() ? this.controllerFor("discovery/categories") :
-                             this.controllerFor("discovery/topics");
+                                                   this.controllerFor("discovery/topics");
             this.controllerFor('composer').open({
               categoryId: controller.get('category.id'),
               action: Composer.CREATE_TOPIC,
@@ -349,7 +353,9 @@ export default {
 
         willTransition: function(transition) {
           if (this.currentUser) {
-            if (transition.targetName.indexOf('discovery') > -1) {
+            if (transition.targetName.indexOf('home') > -1) {
+              this.disconnectComposer();
+            } else if (transition.targetName.indexOf('discovery') > -1) {
               this.disconnectComposer();
               this.set('transitionToDiscovery', true)
             } else {

@@ -1,5 +1,6 @@
 import { getOwner } from 'discourse-common/lib/get-owner';
-import { locationLabel } from 'discourse/plugins/civil-navigation/discourse/lib/map-utilities';
+import { locationLabel } from 'discourse/plugins/pavilion-navigation/discourse/lib/map-utilities';
+import { displayEventDateTime } from 'discourse/plugins/pavilion-events/discourse/lib/date-utilities';
 
 export default {
   setupComponent(args, component) {
@@ -38,8 +39,7 @@ export default {
     Ember.addObserver(args.model, 'event', this, function(model, property) {
       const event = model.get('event');
       if (event) {
-        let label = moment(event.start).format('MMMM Do, h:mm a') + ' to '
-                    + moment(event.end).format('h:mm a');
+        let label = displayEventDateTime(event);
         component.setProperties({
           eventLabel: label,
           showAddEvent: false

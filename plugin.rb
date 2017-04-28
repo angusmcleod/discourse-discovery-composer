@@ -1,9 +1,9 @@
-# name: discourse-discovery-composer
+# name: pavilion-discovery-composer
 # about: Adds a composer to the discovery stream
 # version: 0.1
 # authors: Angus McLeod
 
-register_asset 'stylesheets/discovery-composer.scss'
+register_asset 'stylesheets/pavilion-composer.scss'
 
 after_initialize do
   TYPE_MODEL = "tf-cnn-text"
