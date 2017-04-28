@@ -1,5 +1,5 @@
 import { registerUnbound } from 'discourse-common/lib/helpers';
-import topicIconClass from '../lib/topic-icon-class';
+import { topicIconClass } from '../lib/dc-utilities';
 
 function renderTopicIcon(topic) {
   if (topic.get('subtype')) {

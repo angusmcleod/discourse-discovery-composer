@@ -3,7 +3,7 @@
 # version: 0.1
 # authors: Angus McLeod
 
-register_asset 'stylesheets/pavilion-composer.scss'
+register_asset 'stylesheets/dc-composer.scss'
 
 after_initialize do
   TYPE_MODEL = "tf-cnn-text"

@@ -4,55 +4,12 @@ import ComposerBody from 'discourse/components/composer-body';
 import ComposerEditor from 'discourse/components/composer-editor';
 import ComposerTitle from 'discourse/components/composer-title';
 import ComposerMessages from 'discourse/components/composer-messages';
-import DiscoveryRoute from 'discourse/routes/application';
-import TopicRoute from 'discourse/routes/topic';
-import TopicAdapter from 'discourse/adapters/topic';
 import { ajax } from 'discourse/lib/ajax';
 import { default as computed, on, observes } from 'ember-addons/ember-computed-decorators';
-import { getOwner } from 'discourse-common/lib/get-owner';
-
-const discoveryComposeStates = {
-  discoveryInitial: () => {
-    $('#reply-control').find('.reply-to, .topic-type-choice, .wmd-controls, .submit-panel').hide();
-    $('#reply-control').css({
-      'min-height': '48px',
-      'height': '48px'
-    });
-  },
-  discoveryInput: () => {
-    $('#reply-control').find('.input-tip').show();
-    $('#reply-control').css({
-      'min-height': '75px',
-      'height': '75px'
-    });
-  },
-  discoveryTypes: () => {
-    let height = $('.composer-fields').height() + 10;
-    $('#reply-control').find('.topic-type-choice').show();
-    $('#reply-control').css({
-      'min-height': height,
-      'height': height
-    });
-  },
-  discoverySimilar: () => {
-    let height = $('.similar-titles').height() + 115;
-    $('#reply-control').find('.reply-to, .topic-type-choice, .wmd-controls, .submit-panel').hide();
-    $('#reply-control').css({
-      'min-height': height,
-      'height': height
-    });
-  },
-  discoveryFull: () => {
-    $('#reply-control').css('min-height', '400px');
-    $('#reply-control').find('.wmd-controls').show();
-    Ember.run.later((function() {
-      $('#reply-control').find('.submit-panel').show();
-    }), 300);
-  }
-}
+import { discoveryComposeStates } from '../lib/dc-utilities';
 
 export default {
-  name: 'pavilion-composer-edits',
+  name: 'dc-composer-edits',
   initialize(){
     Composer.serializeOnCreate('topic_type', 'currentType')
     Composer.serializeOnCreate('make_wiki', 'makeWiki')
@@ -62,46 +19,26 @@ export default {
       ratingPluginDisplay: false,
       currentType: 'question',
       makeWiki: false,
+      isDiscovery: false,
 
-      @computed('composeState')
-      isDiscovery: function() {
-        const state = this.get('composeState');
-        return state && state.indexOf('discovery') > -1;
-      },
-
-      @computed('composeState')
-      viewOpen: function() {
-        return this.get('composeState') === 'open' ||
-               this.get('isDiscovery')
-      },
-
-      @computed('hideRating')
+      @computed()
       topicTypes: function() {
         const setting = Discourse.SiteSettings.topic_types;
         let types = setting ? setting.split('|') : [];
         types.push('default');
         return types;
-      },
-
-      @computed('composeState')
-      hideRating() {
-        return this.get('isDiscovery') && this.get('composeState') !== 'discoveryFull';
       }
     })
 
     ComposerController.reopen({
-
-      // TO DO: combine the 'isDiscovery' properties on the model, controller and route into one
-      @computed('application.currentPath')
-      isDiscovery() {
-        const path = this.get('application.currentPath')
-        return path && path.indexOf('discovery') > -1;
-      },
-
-      @observes('model.composeState', 'isDiscovery')
-      convertOpenToInitial() {
-        if (this.get('model.composeState') === 'open' && this.get('isDiscovery')) {
-          this.set('model.composeState', 'discoveryInitial')
+      _setModel(composerModel, opts) {
+        this._super(composerModel, opts);
+        if (opts.isDiscovery) {
+          this.setProperties({
+            'model.isDiscovery': true,
+            'model.viewOpen': true,
+            'model.composeState': 'discoveryInitial'
+          })
         }
       },
 
@@ -113,29 +50,28 @@ export default {
 
       cancelComposer() {
         const self = this;
-
         return new Ember.RSVP.Promise(function (resolve) {
-          if (self.get('model.hasMetaData') || self.get('model.replyDirty')) {
+          const model = self.get('model');
+          if (model.get('hasMetaData') || model.get('replyDirty')) {
             bootbox.confirm(I18n.t("post.abandon.confirm"), I18n.t("post.abandon.no_value"),
                 I18n.t("post.abandon.yes_value"), function(result) {
               if (result) {
                 self.destroyDraft();
-                self.get('model').clearState();
-                if (!self.get('isDiscovery')) {
+                model.clearState();
+                if (!model.get('isDiscovery')) {
                   self.close();
                 }
                 resolve();
               }
             });
           } else {
-            // it is possible there is some sort of crazy draft with no body ... just give up on it
             self.destroyDraft();
-            self.get('model').clearState();
+            model.clearState();
             self.close();
             resolve();
           }
         });
-      },
+      }
 
     })
 
@@ -210,8 +146,6 @@ export default {
     })
 
     ComposerBody.reopen({
-      titleValid: false,
-
       @on('init')
       setupBoundMethods() {
         this._super();
@@ -220,7 +154,7 @@ export default {
       },
 
       @on('init')
-      @observes('composer.isDiscovery,composer.similarTitleTopics.[]')
+      @observes('composer.composeState,composer.similarTitleTopics.[]')
       handleComposeState() {
         if (this.get('composer.isDiscovery')) {
           Ember.run.scheduleOnce('afterRender', this, function() {
@@ -279,113 +213,12 @@ export default {
       @computed('composer.currentType')
       placeholder() {
         const composer = this.get('composer');
-        const isDiscovery = composer.get('isDiscovery');
-
-        if (isDiscovery) {
+        if (composer.get('isDiscovery')) {
           return `topic.type.${composer.get('currentType')}.body`
         }
         return "composer.reply_placeholder"
       }
     })
 
-    DiscoveryRoute.reopen({
-      firstRenderDiscovery: false,
-      transitionToDiscovery: false,
-
-      disconnectComposer: function() {
-        if (this.currentUser) {
-          this.disconnectOutlet({
-            outlet: 'composer',
-            parentView: 'application'
-          });
-        }
-      },
-
-      isDiscoveryPath: function() {
-        const pathSlug = window.location.pathname.split('/')[1];
-        const filters = Discourse.Site.currentProp('filters');
-        let filterPath = pathSlug === '' || filters.filter(function(filter) {
-                           return pathSlug === filter;
-                         }).length > 0;
-        let categoryPath = pathSlug === 'c';
-        return filterPath || categoryPath || this.isCategories();
-      },
-
-      isCategories: function() {
-        const pathSlug = window.location.pathname.split('/')[1];
-        return pathSlug === 'categories';
-      },
-
-      isHome: function() {
-        const pathSlug = window.location.pathname.split('/')[1];
-        return pathSlug === 'home';
-      },
-
-      renderTemplate(controller, model) {
-        this._super();
-        if (this.currentUser && this.isDiscoveryPath()) {
-          this.disconnectComposer();
-          this.set('firstRenderDiscovery', true)
-        }
-      },
-
-      actions: {
-
-        didTransition: function(transition) {
-          this._super();
-          if (this.currentUser && !this.isHome() && (this.get('firstRenderDiscovery') || this.get('transitionToDiscovery'))) {
-            let controller = this.isCategories() ? this.controllerFor("discovery/categories") :
-                                                   this.controllerFor("discovery/topics");
-            this.controllerFor('composer').open({
-              categoryId: controller.get('category.id'),
-              action: Composer.CREATE_TOPIC,
-              draftKey: controller.get('model.draft_key'),
-              draftSequence: controller.get('model.draft_sequence'),
-              composerState: 'discoveryInitial'
-            });
-            this.setProperties({
-              'firstRenderDiscovery': false,
-              'transitionToDiscovery': false
-            })
-          }
-          return true; // Bubble the didTransition event
-        },
-
-        willTransition: function(transition) {
-          if (this.currentUser) {
-            if (transition.targetName.indexOf('home') > -1) {
-              this.disconnectComposer();
-            } else if (transition.targetName.indexOf('discovery') > -1) {
-              this.disconnectComposer();
-              this.set('transitionToDiscovery', true)
-            } else {
-              const composer = getOwner(this).lookup('model:composer');
-              composer.set('isDiscovery', false);
-              this.controllerFor('composer').shrink();
-              this.set('transitionToDiscovery', false)
-            }
-          }
-        }
-      }
-    })
-
-    TopicRoute.reopen({
-      @on('activate')
-      addComposer() {
-        if (this.currentUser) {
-          this.render('composer', {into: 'application', outlet: 'composer'})
-        }
-      },
-
-      @on('deactivate')
-      removeComposer() {
-        if (this.currentUser) {
-          this.disconnectOutlet({
-            outlet: 'composer',
-            parentView: 'application'
-          });
-        }
-      }
-    })
   }
 };

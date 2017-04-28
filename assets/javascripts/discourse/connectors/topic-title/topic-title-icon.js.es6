@@ -1,4 +1,4 @@
-import topicIconClass from '../../lib/topic-icon-class';
+import { topicIconClass } from '../../lib/dc-utilities';
 
 export default {
   setupComponent(args, component) {
